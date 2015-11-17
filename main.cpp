@@ -48,9 +48,9 @@ int main(int ac, const char* av[]) {
 
     // get the program command line options, or
     // some default values for quick check
-    string tx_hash_str  = tx_hash_opt  ? *tx_hash_opt  : "66040ad29f0d780b4d47641a67f410c28cce575b5324c43b784bb376f4e30577";
-    string viewkey_str  = viewkey_opt  ? *viewkey_opt  : "1ddabaa51cea5f6d9068728dc08c7ffaefe39a7a4b5f39fa8a976ecbe2cb520a";
-    string spendkey_str = spendkey_opt ? *spendkey_opt : "1ddabaa51cea5f6d9068728dc08c7ffaefe39a7a4b5f39fa8a976ecbe2cb520a";
+    string tx_hash_str  = tx_hash_opt  ? *tx_hash_opt  : "4b23d30d44c594d7420250a05cf85c1fdd24db2ff4968d78cc0cb6870ab5d25a";
+    string viewkey_str  = viewkey_opt  ? *viewkey_opt  : "71a455a2af850d53628a63ed34d46378a8c562c9e3cef8801161af3413e50e00";
+    string spendkey_str = spendkey_opt ? *spendkey_opt : "9903dda94ab2aed5341f5937bcdfa33a7576364f2560cb103b5d0cd8afceea0e";
     path blockchain_path = bc_path_opt ? path(*bc_path_opt) : path(default_lmdb_dir);
 
 
