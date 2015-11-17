@@ -98,6 +98,14 @@ namespace xmreg
 
 
 
+    ostream&
+    operator<< (ostream& os, const account_public_address& addr)
+    {
+        os << "<" << get_account_address_as_str(false, addr) << ">";
+        return os;
+    }
+
+
     /**
      * Check if a character is a path seprator
      */

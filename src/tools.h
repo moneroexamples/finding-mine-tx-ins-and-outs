@@ -47,6 +47,9 @@ namespace xmreg
     string
     print_address(const account_public_address& address);
 
+    ostream&
+    operator<< (ostream& os, const account_public_address& addr);
+
 
     string
     remove_trailing_path_separator(const string& in_path);

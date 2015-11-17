@@ -10,6 +10,8 @@ using namespace std;
 using boost::filesystem::path;
 using boost::filesystem::is_directory;
 
+using xmreg::operator<<;
+
 // without this it wont work. I'm not sure what it does.
 // it has something to do with locking the blockchain and tx pool
 // during certain operations to avoid deadlocks.
@@ -30,10 +32,10 @@ int main(int ac, const char* av[]) {
     }
 
     // get other options
-    auto address_opt = opts.get_option<string>("address");
-    auto viewkey_opt = opts.get_option<string>("viewkey");
-    auto tx_hash_opt = opts.get_option<string>("txhash");
-    auto bc_path_opt = opts.get_option<string>("bc-path");
+    auto tx_hash_opt  = opts.get_option<string>("txhash");
+    auto viewkey_opt  = opts.get_option<string>("viewkey");
+    auto spendkey_opt = opts.get_option<string>("spendkey");
+    auto bc_path_opt  = opts.get_option<string>("bc-path");
 
 
     // default path to monero folder
@@ -46,9 +48,9 @@ int main(int ac, const char* av[]) {
 
     // get the program command line options, or
     // some default values for quick check
-    string address_str = address_opt ? *address_opt : "48daf1rG3hE1Txapcsxh6WXNe9MLNKtu7W7tKTivtSoVLHErYzvdcpea2nSTgGkz66RFP4GKVAsTV14v6G3oddBTHfxP6tU";
-    string viewkey_str = viewkey_opt ? *viewkey_opt : "1ddabaa51cea5f6d9068728dc08c7ffaefe39a7a4b5f39fa8a976ecbe2cb520a";
-    string tx_hash_str = tx_hash_opt ? *tx_hash_opt : "66040ad29f0d780b4d47641a67f410c28cce575b5324c43b784bb376f4e30577";
+    string tx_hash_str  = tx_hash_opt  ? *tx_hash_opt  : "66040ad29f0d780b4d47641a67f410c28cce575b5324c43b784bb376f4e30577";
+    string viewkey_str  = viewkey_opt  ? *viewkey_opt  : "1ddabaa51cea5f6d9068728dc08c7ffaefe39a7a4b5f39fa8a976ecbe2cb520a";
+    string spendkey_str = spendkey_opt ? *spendkey_opt : "1ddabaa51cea5f6d9068728dc08c7ffaefe39a7a4b5f39fa8a976ecbe2cb520a";
     path blockchain_path = bc_path_opt ? path(*bc_path_opt) : path(default_lmdb_dir);
 
 
@@ -80,34 +82,70 @@ int main(int ac, const char* av[]) {
         return 1;
     }
 
-    // get the highlevel cryptonote::Blockchain object to interact
-    // with the blockchain lmdb database
-    cryptonote::Blockchain& core_storage = mcore.get_core();
-
-    // get the current blockchain height. Just to check
-    // if it reads ok.
-    uint64_t height = core_storage.get_current_blockchain_height();
-
-    cout << "Current blockchain height: " << height << endl;
-
-
-    // parse string representing given monero address
-    cryptonote::account_public_address address;
-
-    if (!xmreg::parse_str_address(address_str,  address))
-    {
-        cerr << "Cant parse string address: " << address_str << endl;
-        return 1;
-    }
 
 
     // parse string representing given private viewkey
-    crypto::secret_key prv_view_key;
-    if (!xmreg::parse_str_secret_key(viewkey_str, prv_view_key))
+    crypto::secret_key private_view_key;
+
+    if (!xmreg::parse_str_secret_key(viewkey_str, private_view_key))
     {
         cerr << "Cant parse view key: " << viewkey_str << endl;
         return 1;
     }
+
+    // parse string representing given private viewkey
+    crypto::secret_key private_spend_key;
+
+    if (!xmreg::parse_str_secret_key(spendkey_str, private_spend_key))
+    {
+        cerr << "Cant parse spend key: " << spendkey_str << endl;
+        return 1;
+    }
+
+
+    // we have private_spend_key, so now
+    // we need to get the corresponding
+    // public_spend_key
+    crypto::public_key public_spend_key;
+
+
+    // generate public key based on the private key
+    crypto::secret_key_to_public_key(private_spend_key, public_spend_key);
+
+
+    // we have private_spend_key, so now
+    // we need to get the corresponding
+    crypto::public_key public_view_key;
+
+
+    // generate public key based on the private key
+    crypto::secret_key_to_public_key(private_view_key, public_view_key);
+
+
+
+    // parse string representing given monero address
+    cryptonote::account_public_address address {public_spend_key, public_view_key};
+
+
+
+    cout << "\n"
+         << "Private spend key: " << private_spend_key << "\n"
+         << "Public spend key : " << public_spend_key  << endl;
+
+    cout << "\n"
+        << "Private view key : "  << private_view_key << "\n"
+        << "Public view key  : "  << public_view_key  << endl;
+
+
+    cout << "\n"
+         << "Monero address   : "  << address << endl;
+
+
+
+
+    // get the highlevel cryptonote::Blockchain object to interact
+    // with the blockchain lmdb database
+    cryptonote::Blockchain& core_storage = mcore.get_core();
 
 
     // we also need tx public key, but we have tx hash only.
@@ -136,19 +174,17 @@ int main(int ac, const char* av[]) {
     // to create, so called, derived key.
     crypto::key_derivation derivation;
 
-    if (!generate_key_derivation(pub_tx_key, prv_view_key, derivation))
+    if (!generate_key_derivation(pub_tx_key, private_view_key, derivation))
     {
         cerr << "Cant get dervied key for: " << "\n"
-             << "pub_tx_key: " << prv_view_key << " and "
-             << "prv_view_key" << prv_view_key << endl;
+             << "pub_tx_key: " << private_view_key << " and "
+             << "prv_view_key" << private_view_key << endl;
         return 1;
     }
 
 
     // lets check our keys
     cout << "\n"
-         << "address          : <" << xmreg::print_address(address) << ">\n"
-         << "private view key : "  << prv_view_key << "\n"
          << "tx hash          : <" << tx_hash_str << ">\n"
          << "public tx key    : "  << pub_tx_key << "\n"
          << "dervied key      : "  << derivation << "\n" << endl;
@@ -180,7 +216,7 @@ int main(int ac, const char* av[]) {
 
         crypto::derive_public_key(derivation,
                                   i,
-                                  address.m_spend_public_key,
+                                  public_spend_key, // address.m_spend_public_key
                                   pubkey);
 
         // get tx output public key
