@@ -338,10 +338,10 @@ int main(int ac, const char* av[]) {
         auto it = key_images.find(tx_in_to_key.k_image);
 
 
-        for (auto& kimg: key_images)
-        {
-            cout <<  kimg.second << kimg.first << endl;
-        }
+//        for (auto& kimg: key_images)
+//        {
+//            cout <<  kimg.second << kimg.first << endl;
+//        }
 
 
         cout << "\n"
