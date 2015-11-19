@@ -48,9 +48,10 @@ int main(int ac, const char* av[]) {
 
     // get the program command line options, or
     // some default values for quick check
-    string tx_hash_str  = tx_hash_opt  ? *tx_hash_opt  : "4b23d30d44c594d7420250a05cf85c1fdd24db2ff4968d78cc0cb6870ab5d25a";
-    string viewkey_str  = viewkey_opt  ? *viewkey_opt  : "71a455a2af850d53628a63ed34d46378a8c562c9e3cef8801161af3413e50e00";
-    string spendkey_str = spendkey_opt ? *spendkey_opt : "9903dda94ab2aed5341f5937bcdfa33a7576364f2560cb103b5d0cd8afceea0e";
+    //string tx_hash_str  = tx_hash_opt  ? *tx_hash_opt  : "41a21e8d242850bb29a66a07c7a243db2062a61e0f4896d187e386ee0b10f66b";
+    string tx_hash_str  = tx_hash_opt  ? *tx_hash_opt  : "65b60b4182f775b1dfc1e2d73351bf63c61ee332f4eefbf385f55ee059863e98";
+    string viewkey_str  = viewkey_opt  ? *viewkey_opt  : "fed77158ec692fe9eb951f6aeb22c3bda16fe8926c1aac13a5651a9c27f34309";
+    string spendkey_str = spendkey_opt ? *spendkey_opt : "1eaa41781d5f880dc69c9379e281225c781a6db8dc544a26008e7a07890afa03";
     path blockchain_path = bc_path_opt ? path(*bc_path_opt) : path(default_lmdb_dir);
 
 
@@ -178,7 +179,7 @@ int main(int ac, const char* av[]) {
     {
         cerr << "Cant get dervied key for: " << "\n"
              << "pub_tx_key: " << private_view_key << " and "
-             << "prv_view_key" << private_view_key << endl;
+             << "private_view_key" << private_view_key << endl;
         return 1;
     }
 
@@ -240,6 +241,126 @@ int main(int ac, const char* av[]) {
     }
 
     cout << "\nTotal xmr received: " << cryptonote::print_money(money_transfered) << endl;
+
+
+
+
+    cryptonote::account_keys acc_keys {address, private_spend_key, private_view_key};
+
+    std::unordered_map<crypto::key_image, size_t> key_images;
+
+
+    // public transaction key is combined with our spendkey
+    // to create, so called, derived key.
+    crypto::key_derivation recv_derivation;
+
+    if (!generate_key_derivation(pub_tx_key, private_view_key, recv_derivation))
+    {
+        cerr << "Cant get dervied key for: " << "\n"
+             << "pub_tx_key: " << private_view_key << " and "
+             << "private_key" << private_spend_key << endl;
+        return 1;
+    }
+
+
+
+    // generate key images to be used for checking inputs for spending
+    for (size_t i = 0; i < output_no; ++i)
+    {
+        cryptonote::keypair in_ephemeral;
+
+
+        crypto::derive_public_key(recv_derivation,
+                                  i,
+                                  public_spend_key,
+                                  in_ephemeral.pub);
+
+
+        crypto::derive_secret_key(recv_derivation,
+                                  i,
+                                  private_spend_key,
+                                  in_ephemeral.sec);
+//
+
+        crypto::key_image key_image2;
+
+        crypto::generate_key_image(in_ephemeral.pub,
+                                   in_ephemeral.sec,
+                                   key_image2);
+
+        crypto::key_image key_image;
+        cryptonote::keypair in_ephemeral2;
+        cryptonote::generate_key_image_helper(acc_keys,
+                                              pub_tx_key,
+                                              i,
+                                              in_ephemeral2,
+                                              key_image);
+
+
+
+        cout << "Key image for output " << i << ": " << key_image << endl;
+        cout << "Key image for output " << i << ": " << key_image2 << endl;
+
+        key_images[key_image2] = i;
+
+    }
+
+
+
+    // get the total number of outputs in a transaction.
+    size_t input_no = tx.vin.size();
+
+    // sum amount of xmr sent by us
+    // in the given transaction
+    uint64_t money_received {0};
+
+    // loop through inputs in the given tx
+    // to check which inputs our ours.
+    for (size_t i = 0; i < input_no; ++i)
+    {
+
+
+
+        cryptonote::txin_v& in = tx.vin[i];
+
+       // if(in.type() != typeid(cryptonote::txin_to_key))
+         //   continue;
+
+
+        // get tx input public key
+        const cryptonote::txin_to_key tx_in_to_key
+                = boost::get<cryptonote::txin_to_key>(in);
+
+
+
+
+
+        auto it = key_images.find(tx_in_to_key.k_image);
+
+
+        for (auto& kimg: key_images)
+        {
+            cout <<  kimg.second << kimg.first << endl;
+        }
+
+
+        cout << "\n"
+             << "Input no: " << i << ", " << tx_in_to_key.k_image;
+
+        if (it != key_images.end())
+        {
+            // if so, then add the xmr amount to the money_spend
+            cout << ", mine key: " << cryptonote::print_money(tx_in_to_key.amount) << endl;
+        }
+        else
+        {
+            cout << ", not mine key " << endl;
+        }
+
+
+    }
+
+
 
 
     cout << "\nEnd of program." << endl;
