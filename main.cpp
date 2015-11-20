@@ -5,6 +5,7 @@
 #include "src/CmdLineOptions.h"
 #include "src/tools.h"
 
+#include "mnemonics/electrum-words.h"
 
 using namespace std;
 using boost::filesystem::path;
@@ -128,6 +129,19 @@ int main(int ac, const char* av[]) {
     cryptonote::account_public_address address {public_spend_key, public_view_key};
 
 
+    string mnemonic_str;
+    string language {"English"};
+    // derive the mnemonic version of the spend key.
+    // 25 word mnemonic that is provided by the simplewallet
+    // is just a word representation of the private spend key
+    if (!crypto::ElectrumWords::bytes_to_words(private_spend_key, mnemonic_str, language))
+    {
+        cerr << "\nCant create the mnemonic for the private spend key: "
+             << private_spend_key << endl;
+        return 1;
+    }
+
+
 
     cout << "\n"
          << "Private spend key: " << private_spend_key << "\n"
@@ -140,6 +154,9 @@ int main(int ac, const char* av[]) {
 
     cout << "\n"
          << "Monero address   : "  << address << endl;
+
+    cout << "\n"
+         << "Mnemonic seed    : "  << mnemonic_str << endl;
 
 
 

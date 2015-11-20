@@ -62,6 +62,10 @@ add_library(blockchain_db STATIC IMPORTED)
 set_property(TARGET blockchain_db
         PROPERTY IMPORTED_LOCATION ${MONERO_LIBS_DIR}/libblockchain_db.a)
 
+add_library(mnemonics STATIC IMPORTED)
+set_property(TARGET mnemonics
+        PROPERTY IMPORTED_LOCATION ${MONERO_LIBS_DIR}/libmnemonics.a)
+
 add_library(lmdb STATIC IMPORTED)
 set_property(TARGET lmdb
         PROPERTY IMPORTED_LOCATION ${MONERO_LIBS_DIR}/liblmdb.a)
@@ -83,6 +87,7 @@ add_executable(tx_ins_and_outs
 target_link_libraries(tx_ins_and_outs
         myxrm
         cryptonote_core
+        mnemonics
         blockchain_db
         crypto
         blocks
