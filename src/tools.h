@@ -32,9 +32,9 @@ namespace xmreg
 
 
     bool
-    get_tx_pub_key_from_str_hash(Blockchain& core_storage,
-                             const string& hash_str,
-                             transaction& tx);
+    get_tx_from_str_hash(Blockchain& core_storage,
+                     const string& hash_str,
+                     transaction& tx);
 
     bool
     parse_str_address(const string& address_str,

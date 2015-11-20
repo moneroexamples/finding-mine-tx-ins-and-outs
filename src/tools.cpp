@@ -51,7 +51,7 @@ namespace xmreg
      * crypto::hash object.
      */
     bool
-    get_tx_pub_key_from_str_hash(Blockchain& core_storage, const string& hash_str, transaction& tx)
+    get_tx_from_str_hash(Blockchain& core_storage, const string& hash_str, transaction& tx)
     {
         crypto::hash tx_hash;
         parse_hash256(hash_str, tx_hash);
