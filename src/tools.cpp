@@ -42,6 +42,7 @@ namespace xmreg
     // explicit instantiations of get template function
     template bool parse_str_secret_key<crypto::secret_key>(const string& key_str, crypto::secret_key& secret_key);
     template bool parse_str_secret_key<crypto::public_key>(const string& key_str, crypto::public_key& secret_key);
+    template bool parse_str_secret_key<crypto::key_image>(const string& key_str, crypto::key_image& secret_key);
 
 
     /**

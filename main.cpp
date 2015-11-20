@@ -315,12 +315,61 @@ int main(int ac, const char* av[]) {
 
 
 
-        cout << "Key image for output " << i << ": " << key_image << endl;
-        cout << "Key image for output " << i << ": " << key_image2 << endl;
+       // cout << "Key image for output " << i << ": " << key_image << endl;
+        //cout << "Key image for output " << i << ": " << key_image2 << endl;
 
         key_images[key_image2] = i;
 
     }
+
+
+
+
+
+    // hardcode output key images from previous transactions
+    // easier to test, than to search the blockchain each time
+
+
+    vector<string> past_key_images_str {
+            "b45393312d5f9c28d043aa4ad9ba76a16db70a234b2bce95b9ff768a63c43dde",
+            "18f6f75174d1c79dec18bbbfb86004d3000750871040af35e69ea8bd536af2fe",
+            "38619bfb8c3c57beed613c2c46d3bb315987bb1f1b32a31c3d30d4283180b0f0",
+
+            "2bb5817d8785e712e99969d36bfd9a956b2fa5b95442ae95fdd6cebf7d1b78a4",
+            "9f99cef8b4df531b1724767f088c57e808ebd43dfaa18d926d50cc1dcbb16b8c",
+            "eb0961e82846358dc2a648d4871dfd8ed0aaf6a123c321a63fc9e1d3312efb8d",
+
+            "549782c659cd85dd2642d14936e2557cc17b4fecd8b2b766e774fa2404c30e49",
+            "359e6f9ad4fd529c6f3ba44af7b6420fd0f002aac8d3a8828edab1bb2fbb11d1",
+
+            "66ddbf99b6e30f0bf4aa284600ede73019ee0866d7ecf2f2a11d39fd7511ff43",
+            "be1683c4b11cb66787c27cd31ce86b57a029ee9201bc9da5fbff32f1c767565a",
+            "18079f7b8ba89ae6725c791f4edddd9fd2f6c46f36bed9b21b512a846e05e38b",
+
+            "8618f33ebcb9b13e93eda2d7249d32b7e522b3b8ea706dddffd7acf38d38248f",
+            "70a837de5fefc5284984effe97cbe0159ba90e3464dec48803ffd952eafc2cb9",
+
+            "b75fb25b08a55572284e4312c658b772617dec74fc603d764d47627fa1cef6f5",
+            "ad3b9a85e6ed25bce75af4dca670ee564a4ba74b58c8289ad10c286df2241a99",
+
+            "ae0b3e22bf5dca03da1b82848f120049b51f1b0f3dbe40e76ca5d5ba796ac1d5",
+            "c46c77bfecee9f2ecdda53f3c1635c8a901c561dee048180d18455b97374a1a1",
+
+            "682226e7bb46aa71f64c5de90b34d0bf93caa947831e3f64a66c134e0b3b1fe4",
+            "84bd11a888a0666e62f989ad1282c7f1ec107a744d09f0f55f71394e85da400a"
+    };
+
+
+    std::unordered_map<crypto::key_image, size_t> key_images2;
+
+
+    for (string& key_image_str: past_key_images_str)
+    {
+        crypto::key_image ki;
+        xmreg::parse_str_secret_key(key_image_str, ki);
+        key_images2[ki] = 0; // <- some temp value for now
+    }
+
 
 
 
@@ -329,7 +378,9 @@ int main(int ac, const char* av[]) {
 
     // sum amount of xmr sent by us
     // in the given transaction
-    uint64_t money_received {0};
+    uint64_t money_spend {0};
+
+    cout << endl;
 
     // loop through inputs in the given tx
     // to check which inputs our ours.
@@ -345,37 +396,48 @@ int main(int ac, const char* av[]) {
 
 
         // get tx input public key
-        const cryptonote::txin_to_key tx_in_to_key
+        const cryptonote::txin_to_key& tx_in_to_key
                 = boost::get<cryptonote::txin_to_key>(in);
 
 
+        auto it = key_images2.find(tx_in_to_key.k_image);
 
-
-
-        auto it = key_images.find(tx_in_to_key.k_image);
-
-
-//        for (auto& kimg: key_images)
-//        {
-//            cout <<  kimg.second << kimg.first << endl;
-//        }
-
-
-        cout << "\n"
+        cout << ""
              << "Input no: " << i << ", " << tx_in_to_key.k_image;
 
         if (it != key_images.end())
         {
             // if so, then add the xmr amount to the money_spend
+            money_spend += tx_in_to_key.amount;
             cout << ", mine key: " << cryptonote::print_money(tx_in_to_key.amount) << endl;
         }
         else
         {
             cout << ", not mine key " << endl;
         }
-
-
     }
+
+    cout << "\nTotal xmr spend: " << cryptonote::print_money(money_spend) << endl;
+
+
+
+    uint64_t received = (money_spend < money_transfered)
+                        ? money_transfered - money_spend
+                        : 0;
+
+    if (money_spend < money_transfered)
+    {
+        cout << "\n Xmr resieved: " << cryptonote::print_money(money_transfered - money_spend) << endl;
+    }
+    else
+    {
+        cout << "\n Xmr spent: " << cryptonote::print_money(money_spend - money_transfered) << endl;
+    }
+
+
+
+
+
 
 
 
