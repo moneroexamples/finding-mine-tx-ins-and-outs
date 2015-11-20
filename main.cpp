@@ -50,9 +50,9 @@ int main(int ac, const char* av[]) {
     // get the program command line options, or
     // some default values for quick check
     //string tx_hash_str  = tx_hash_opt  ? *tx_hash_opt  : "41a21e8d242850bb29a66a07c7a243db2062a61e0f4896d187e386ee0b10f66b";
-    string tx_hash_str  = tx_hash_opt  ? *tx_hash_opt  : "65b60b4182f775b1dfc1e2d73351bf63c61ee332f4eefbf385f55ee059863e98";
-    string viewkey_str  = viewkey_opt  ? *viewkey_opt  : "fed77158ec692fe9eb951f6aeb22c3bda16fe8926c1aac13a5651a9c27f34309";
-    string spendkey_str = spendkey_opt ? *spendkey_opt : "1eaa41781d5f880dc69c9379e281225c781a6db8dc544a26008e7a07890afa03";
+    string tx_hash_str  = tx_hash_opt  ? *tx_hash_opt  : "ead7b392f57311fbac14477c4a50bee935f1dbc06bf166d219f4c011ae1dc398";
+    string viewkey_str  = viewkey_opt  ? *viewkey_opt  : "9c2edec7636da3fbb343931d6c3d6e11bcd8042ff7e11de98a8d364f31976c04";
+    string spendkey_str = spendkey_opt ? *spendkey_opt : "950b90079b0f530c11801ef29e99618d3768d79d3d24972ff4b6fd9687b7b20c";
     path blockchain_path = bc_path_opt ? path(*bc_path_opt) : path(default_lmdb_dir);
 
 
