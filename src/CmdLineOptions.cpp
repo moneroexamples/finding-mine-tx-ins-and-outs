@@ -21,10 +21,6 @@ namespace xmreg
         desc.add_options()
                 ("help,h", value<bool>()->default_value(false)->implicit_value(true),
                  "produce help message")
-                ("viewkey,v", value<string>(),
-                 "private view key")
-                ("spendkey,s", value<string>(),
-                 "private spend key")
                 ("bc-path,b", value<string>(),
                  "path to lmdb blockchain");
 
