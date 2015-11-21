@@ -64,8 +64,6 @@ int main(int ac, const char* av[]) {
     }
 
     // get other options
-    auto viewkey_opt  = opts.get_option<string>("viewkey");
-    auto spendkey_opt = opts.get_option<string>("spendkey");
     auto bc_path_opt  = opts.get_option<string>("bc-path");
 
 
@@ -79,8 +77,8 @@ int main(int ac, const char* av[]) {
 
     // get the program command line options, or
     // some default values for quick check
-    string viewkey_str  = viewkey_opt  ? *viewkey_opt  : "9c2edec7636da3fbb343931d6c3d6e11bcd8042ff7e11de98a8d364f31976c04";
-    string spendkey_str = spendkey_opt ? *spendkey_opt : "950b90079b0f530c11801ef29e99618d3768d79d3d24972ff4b6fd9687b7b20c";
+    string viewkey_str  = "9c2edec7636da3fbb343931d6c3d6e11bcd8042ff7e11de98a8d364f31976c04";
+    string spendkey_str = "950b90079b0f530c11801ef29e99618d3768d79d3d24972ff4b6fd9687b7b20c";
     path blockchain_path = bc_path_opt ? path(*bc_path_opt) : path(default_lmdb_dir);
 
 
