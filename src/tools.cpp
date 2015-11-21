@@ -140,4 +140,60 @@ namespace xmreg
         return bf::path(remove_trailing_path_separator(path_str));
     }
 
+
+
+    /*
+     * Generate key_image of foran ith output
+     */
+    bool
+    generate_key_image(const crypto::key_derivation& derivation,
+                       const std::size_t i,
+                       const crypto::secret_key& sec_key,
+                       const crypto::public_key& pub_key,
+                       crypto::key_image& key_img)
+    {
+
+        cryptonote::keypair in_ephemeral;
+
+        if (!crypto::derive_public_key(derivation,
+                                  i,
+                                  pub_key,
+                                  in_ephemeral.pub))
+        {
+            cerr << "Error generating publick key " << pub_key << endl;
+            return false;
+        }
+
+        try
+        {
+
+            crypto::derive_secret_key(derivation,
+                                      i,
+                                      sec_key,
+                                      in_ephemeral.sec);
+        }
+        catch(const std::exception& e)
+        {
+            cerr << "Error generate secret image: " << e.what() << endl;
+            return false;
+        }
+
+
+        crypto::key_image key_image;
+
+        try
+        {
+            crypto::generate_key_image(in_ephemeral.pub,
+                                       in_ephemeral.sec,
+                                       key_image);
+        }
+        catch(const std::exception& e)
+        {
+            cerr << "Error generate key image: " << e.what() << endl;
+            return false;
+        }
+
+        return true;
+    }
+
 }

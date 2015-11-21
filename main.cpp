@@ -170,7 +170,9 @@ int main(int ac, const char* av[]) {
             "60465baab286ae6656378ab5b036b32c238347e7d83988be6d613c17dc586cc4",
             "5dcc5eb9cd89f8d364f7ea4ad789067f8c16425ce94d6a6e38e1c0c3f1fedae6",
             "6f6d97eaa2de50d27b60ce8ac40b0b8dd53a56f7d9f17d81a71b29194d53dd58",
-            "97ffac124e8215986cfa9f46fb4824d5f366e48cb5e30495a3debb62bac01c06"
+            "97ffac124e8215986cfa9f46fb4824d5f366e48cb5e30495a3debb62bac01c06",
+            "6b524290bd6a955e72ad47d88736a871f7c2661f225e1127f4310c00e585f974",
+            "a16f4658e736801ce1cc875e146127628810609b6297e362b86cd3c691d1a4d0"
     };
 
 
@@ -198,14 +200,26 @@ int main(int ac, const char* av[]) {
     // and our private spend key
     vector<crypto::key_image> key_images;
 
+    // total xmr balance
     uint64_t total_xmr_balance {0};
 
 
-    // for each transaction
+    // for each transaction go through its outputs and inputs.
+    // for outputs, check if any of the them belongs to us, based
+    // on our private view key. If so, then get the xmr amount
+    // sent to us, and also generate key image for each of our outputs.
+    // key images are generated using our public spend key. each generated
+    // key image we store in vector of the key_images.
+    //
+    // after we are done with outputs, we go to check inputs. inputs
+    // are our spendings, but which input is ours? for this, we need
+    // to check if input's key_image, matches any of ours key_images.
+    // if there is a match, it means that this input is ours, i.e.,
+    // we sent xmr somewhere.
     for (const cryptonote::transaction& tx: txs)
     {
-        // get its public key from extras field
-        crypto::public_key pub_tx_key = cryptonote::get_tx_pub_key_from_extra(tx);
+        // get tx public key from extras field
+        const crypto::public_key& pub_tx_key = cryptonote::get_tx_pub_key_from_extra(tx);
 
         if (pub_tx_key == cryptonote::null_pkey)
         {
@@ -217,7 +231,7 @@ int main(int ac, const char* av[]) {
         }
 
 
-        // public transaction key is combined with our viewkey
+        // public transaction key is combined with our private viewkey
         // to create, so called, derived key.
         crypto::key_derivation derivation;
 
@@ -237,8 +251,10 @@ int main(int ac, const char* av[]) {
              << "dervied key      : "  << derivation << "\n" << endl;
 
 
+        //
         // check each output to see which belong to us
         // and generate key_images for each
+        //
 
         // get the total number of outputs in a transaction.
         size_t output_no = tx.vout.size();
@@ -248,12 +264,10 @@ int main(int ac, const char* av[]) {
         uint64_t money_received {0};
 
 
-
         // loop through outputs in the given tx
         // to check which outputs our ours. we compare outputs'
         // public keys with the public key that would had been
         // generated for us if we had gotten the outputs.
-        // not sure this is the case though, but that's my understanding.
         for (size_t i = 0; i < output_no; ++i)
         {
             // get the tx output public key
@@ -263,11 +277,11 @@ int main(int ac, const char* av[]) {
 
             crypto::derive_public_key(derivation,
                                       i,
-                                      public_spend_key, // address.m_spend_public_key
+                                      public_spend_key,
                                       pubkey);
 
             // get tx output public key
-            const cryptonote::txout_to_key tx_out_to_key
+            const cryptonote::txout_to_key& tx_out_to_key
                     = boost::get<cryptonote::txout_to_key>(tx.vout[i].target);
 
 
@@ -276,27 +290,21 @@ int main(int ac, const char* av[]) {
             // check if the output's public key is ours
             if (tx_out_to_key.key == pubkey)
             {
-
                 //
                 // generate key_image of this output
-                //
-                cryptonote::keypair in_ephemeral;
-
-                crypto::derive_public_key(derivation,
-                                          i,
-                                          public_spend_key,
-                                          in_ephemeral.pub);
-
-                crypto::derive_secret_key(derivation,
-                                          i,
-                                          private_spend_key,
-                                          in_ephemeral.sec);
-
                 crypto::key_image key_image;
 
-                crypto::generate_key_image(in_ephemeral.pub,
-                                           in_ephemeral.sec,
-                                           key_image);
+                if (!xmreg::generate_key_image(derivation, i,
+                                               private_spend_key,
+                                               public_spend_key,
+                                               key_image))
+                {
+                    cerr << "Cant generate key image for tx: "
+                         << cryptonote::get_transaction_hash(tx)
+                         << endl;
+
+                    return 1;
+                }
 
                 // push to global vector to use it later for checking
                 // for our spend_transactions
@@ -315,7 +323,6 @@ int main(int ac, const char* av[]) {
         }
 
         cout << "\nTotal xmr received: " << cryptonote::print_money(money_received) << endl;
-
 
         //
         // check for spendings

@@ -57,6 +57,13 @@ namespace xmreg
     bf::path
     remove_trailing_path_separator(const bf::path& in_path);
 
+    bool
+    generate_key_image(const crypto::key_derivation& derivation,
+                       const std::size_t output_index,
+                       const crypto::secret_key& sec_key,
+                       const crypto::public_key& pub_key,
+                       crypto::key_image& key_img);
+
 
 }
 
