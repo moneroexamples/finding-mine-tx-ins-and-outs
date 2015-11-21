@@ -1,0 +1,107 @@
+Transaction 1:
+recieve 2.24  ead7b392f57311fbac14477c4a50bee935f1dbc06bf166d219f4c011ae1dc398
+
+
+Transaction 2:
+recieve 1.321 50a3ded2df473a7e8a7fde58c8a865d1ae246ce8ceddb5f474164888fe2ad822
+
+
+Transaction 3:
+recieve 0.6   fed715d3361f3c66437e1e19f193c93abb86c74b5d77ea464e95f27c37097214
+
+
+Transaction 4:
+spend  0.78   948a7ce9971d05e99a43f35e11e4c6a346e7d2b71758bed5cb4f9fc175f7bb5f
+fee    0.02
+total  0.08
+
+the output spend has 2 xmr, thus recived 1.2 xmr change the same transaction
+
+
+Transaction 5:
+spend  0.15   edc9671f6f988f7d9a5265c1f7829d5b8ecc2f6ddafa995b23a1dd04f7834713
+fee    0.01
+total  0.16
+
+the output spend has 0.3 xmr, thus recived 0.14 xmr change the same transaction
+
+
+Transactioni 6:
+recieve 1.6   7132cd214d9b7b502b2990b61181ba1cde203b9e4c648d60a9772e56c1ff2980
+
+Transactioni 7:
+spend 1.6     60465baab286ae6656378ab5b036b32c238347e7d83988be6d613c17dc586cc4
+fee   0.05
+total 1.65
+
+outputs used had 0.6, 1.0, 0.4, 0.2 and 0.1 xmr (total 1.94), thus recieved back 0.29 xmr
+
+
+Transactioni 8:
+recieve 1.1	 5dcc5eb9cd89f8d364f7ea4ad789067f8c16425ce94d6a6e38e1c0c3f1fedae6
+
+Transactioni 9:
+spend 1.2    6f6d97eaa2de50d27b60ce8ac40b0b8dd53a56f7d9f17d81a71b29194d53dd58
+fee   0.04
+total 1.24
+
+outputs used 0.02, 0.2, 1, 0.4 (total 1.26), thus got back 0.02 xmr
+
+
+Transactioni 10:
+spend  2.981 97ffac124e8215986cfa9f46fb4824d5f366e48cb5e30495a3debb62bac01c06
+fee    0.03
+total  3.011
+
+outputs used 1, 0.09, 0.02, 0.2, 0.6, 0.1, 1, 0.001  (total 3.011), thus got back 0.00 xmr 
+
+
+Transaction 11
+resieve 0.48   6b524290bd6a955e72ad47d88736a871f7c2661f225e1127f4310c00e585f974
+
+Transaction 12
+resieve 4.8   a16f4658e736801ce1cc875e146127628810609b6297e362b86cd3c691d1a4d0
+
+
+Transaction 13
+send   0.28  1826bf767546ed1ebaebc22c34ca4f73e6f8b38efcb2ded79c9470d2625eadf9
+fee    0.02
+total  0.30
+
+outputs used 0.4, thus got back 0.10 xmr 
+
+
+Transaction 14
+recieved 2.49  f81dd26e16c66a20e5609e6b19a849be7aaad3705ac7614db229a9d4f982bdaa
+
+Transaction 15
+spend  1.34    87f64738a14d25a8e4e1a6c2a78510895b4dc6ea1ab4f909ff1ccde8c6907f10
+fee    0.01
+total  1.35
+
+outputs used 0.08 and 4 (total 3.08), thus got back 0.10 xmr
+
+
+Transaction 16
+spend  1.12345   38b6935a9bc0385f5ddaf63582bb318a81125756a433fe2babab698f91438d20
+fee    0.0355
+total  1.16
+
+outputs used 2, thus got back 0.84 xmr 
+
+
+Transaction 17
+spend  4    09d9e8eccf82b3d6811ed7005102caf1b605f325cf60ed372abeb4a67d956fff
+fee    0.19
+total  4.19
+
+outputs used totalled to 4.56, thus got back 0.37 xmr 
+
+
+Transaction 18
+spend  0.76  83d682b3f1b57db488b1d2040a48c0db957e8b79f5e6142e1b018f41d4d9dc84
+fee    0.01
+total  0.77
+
+outputs used totalled to 0.77, thus got back 0. xmr
+

@@ -155,8 +155,7 @@ namespace xmreg
 
         cryptonote::keypair in_ephemeral;
 
-        if (!crypto::derive_public_key(derivation,
-                                  i,
+        if (!crypto::derive_public_key(derivation, i,
                                   pub_key,
                                   in_ephemeral.pub))
         {
@@ -167,8 +166,7 @@ namespace xmreg
         try
         {
 
-            crypto::derive_secret_key(derivation,
-                                      i,
+            crypto::derive_secret_key(derivation, i,
                                       sec_key,
                                       in_ephemeral.sec);
         }
@@ -179,13 +177,11 @@ namespace xmreg
         }
 
 
-        crypto::key_image key_image;
-
         try
         {
             crypto::generate_key_image(in_ephemeral.pub,
                                        in_ephemeral.sec,
-                                       key_image);
+                                       key_img);
         }
         catch(const std::exception& e)
         {

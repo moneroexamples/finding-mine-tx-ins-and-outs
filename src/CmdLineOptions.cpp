@@ -25,8 +25,6 @@ namespace xmreg
                  "private view key")
                 ("spendkey,s", value<string>(),
                  "private spend key")
-                ("txhash,t", value<string>(),
-                 "public transaction hash")
                 ("bc-path,b", value<string>(),
                  "path to lmdb blockchain");
 

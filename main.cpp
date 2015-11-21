@@ -33,7 +33,6 @@ int main(int ac, const char* av[]) {
     }
 
     // get other options
-    auto tx_hash_opt  = opts.get_option<string>("txhash");
     auto viewkey_opt  = opts.get_option<string>("viewkey");
     auto spendkey_opt = opts.get_option<string>("spendkey");
     auto bc_path_opt  = opts.get_option<string>("bc-path");
@@ -49,8 +48,6 @@ int main(int ac, const char* av[]) {
 
     // get the program command line options, or
     // some default values for quick check
-    //string tx_hash_str  = tx_hash_opt  ? *tx_hash_opt  : "41a21e8d242850bb29a66a07c7a243db2062a61e0f4896d187e386ee0b10f66b";
-    string tx_hash_str  = tx_hash_opt  ? *tx_hash_opt  : "ead7b392f57311fbac14477c4a50bee935f1dbc06bf166d219f4c011ae1dc398";
     string viewkey_str  = viewkey_opt  ? *viewkey_opt  : "9c2edec7636da3fbb343931d6c3d6e11bcd8042ff7e11de98a8d364f31976c04";
     string spendkey_str = spendkey_opt ? *spendkey_opt : "950b90079b0f530c11801ef29e99618d3768d79d3d24972ff4b6fd9687b7b20c";
     path blockchain_path = bc_path_opt ? path(*bc_path_opt) : path(default_lmdb_dir);
@@ -159,7 +156,11 @@ int main(int ac, const char* av[]) {
          << "Mnemonic seed    : "  << mnemonic_str << endl;
 
 
-    // all transactions hashes related to the new wallet
+    // for this example, I made new wallet. These are the transaction hashes
+    // that send to the wallet, or send from the wallet. I hardcoded them here,
+    // because its was much easier to work on the example. For more general
+    // use, one would have to scan the blockchain to determine which
+    // transactions our ours.
     vector<string> tx_hashes_str {
             "ead7b392f57311fbac14477c4a50bee935f1dbc06bf166d219f4c011ae1dc398",
             "50a3ded2df473a7e8a7fde58c8a865d1ae246ce8ceddb5f474164888fe2ad822",
@@ -172,7 +173,13 @@ int main(int ac, const char* av[]) {
             "6f6d97eaa2de50d27b60ce8ac40b0b8dd53a56f7d9f17d81a71b29194d53dd58",
             "97ffac124e8215986cfa9f46fb4824d5f366e48cb5e30495a3debb62bac01c06",
             "6b524290bd6a955e72ad47d88736a871f7c2661f225e1127f4310c00e585f974",
-            "a16f4658e736801ce1cc875e146127628810609b6297e362b86cd3c691d1a4d0"
+            "a16f4658e736801ce1cc875e146127628810609b6297e362b86cd3c691d1a4d0",
+            "1826bf767546ed1ebaebc22c34ca4f73e6f8b38efcb2ded79c9470d2625eadf9",
+            "f81dd26e16c66a20e5609e6b19a849be7aaad3705ac7614db229a9d4f982bdaa",
+            "87f64738a14d25a8e4e1a6c2a78510895b4dc6ea1ab4f909ff1ccde8c6907f10",
+            "38b6935a9bc0385f5ddaf63582bb318a81125756a433fe2babab698f91438d20",
+            "09d9e8eccf82b3d6811ed7005102caf1b605f325cf60ed372abeb4a67d956fff",
+            "83d682b3f1b57db488b1d2040a48c0db957e8b79f5e6142e1b018f41d4d9dc84"
     };
 
 
@@ -203,6 +210,8 @@ int main(int ac, const char* av[]) {
     // total xmr balance
     uint64_t total_xmr_balance {0};
 
+    size_t tx_index {0};
+
 
     // for each transaction go through its outputs and inputs.
     // for outputs, check if any of the them belongs to us, based
@@ -218,8 +227,15 @@ int main(int ac, const char* av[]) {
     // we sent xmr somewhere.
     for (const cryptonote::transaction& tx: txs)
     {
+
+        cout << "\n\n"
+             << "********************************************************************\n"
+             << "Transaction: "<< ++tx_index <<"\n"
+             << "********************************************************************"
+             << endl;
+
         // get tx public key from extras field
-        const crypto::public_key& pub_tx_key = cryptonote::get_tx_pub_key_from_extra(tx);
+        crypto::public_key pub_tx_key = cryptonote::get_tx_pub_key_from_extra(tx);
 
         if (pub_tx_key == cryptonote::null_pkey)
         {
@@ -240,20 +256,21 @@ int main(int ac, const char* av[]) {
             cerr << "Cant get dervied key for: " << "\n"
                  << "pub_tx_key: " << private_view_key << " and "
                  << "private_view_key" << private_view_key << endl;
+
             return 1;
         }
 
 
         // lets check our keys
         cout << "\n"
-             << "tx hash          : <" << tx_hash_str << ">\n"
+             << "tx hash          : " << cryptonote::get_transaction_hash(tx) << "\n"
              << "public tx key    : "  << pub_tx_key << "\n"
-             << "dervied key      : "  << derivation << "\n" << endl;
+             << "dervied key      : "  << derivation << "\n"
+             << endl;
 
 
         //
-        // check each output to see which belong to us
-        // and generate key_images for each
+        // check outputs to for incoming xmr
         //
 
         // get the total number of outputs in a transaction.
@@ -275,13 +292,12 @@ int main(int ac, const char* av[]) {
             // if someone had sent us some xmr.
             crypto::public_key pubkey;
 
-            crypto::derive_public_key(derivation,
-                                      i,
+            crypto::derive_public_key(derivation, i,
                                       public_spend_key,
                                       pubkey);
 
             // get tx output public key
-            const cryptonote::txout_to_key& tx_out_to_key
+            cryptonote::txout_to_key tx_out_to_key
                     = boost::get<cryptonote::txout_to_key>(tx.vout[i].target);
 
 
@@ -325,7 +341,7 @@ int main(int ac, const char* av[]) {
         cout << "\nTotal xmr received: " << cryptonote::print_money(money_received) << endl;
 
         //
-        // check for spendings
+        // check inputs for spend xmr
         //
 
         // get the total number of inputs in a transaction.
@@ -341,15 +357,13 @@ int main(int ac, const char* av[]) {
         for (size_t i = 0; i < input_no; ++i)
         {
 
-            const cryptonote::txin_v& in = tx.vin[i];
-
             // get tx input key
             const cryptonote::txin_to_key& tx_in_to_key
-                    = boost::get<cryptonote::txin_to_key>(in);
+                    = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
 
             // check if the public key image of this input
             // matches any of your key images that were
-            // genrated for every output that we recieved
+            // generated for every output that we recieived
             std::vector<crypto::key_image>::iterator it;
             it = find(key_images.begin(), key_images.end(), tx_in_to_key.k_image);
 
@@ -360,7 +374,9 @@ int main(int ac, const char* av[]) {
             {
                 // if so, then add the xmr amount to the money_spend
                 money_spend += tx_in_to_key.amount;
-                cout << ", mine key image: " << cryptonote::print_money(tx_in_to_key.amount) << endl;
+                cout << ", mine key image: "
+                     << cryptonote::print_money(tx_in_to_key.amount)
+                     << endl;
             }
             else
             {
@@ -379,22 +395,28 @@ int main(int ac, const char* av[]) {
 
         if (money_received > money_spend)
         {
-            cout << " - xmr resieved: " << cryptonote::print_money(money_received - money_spend) << endl;
-            total_xmr_balance += money_received - money_spend;
+
+            uint64_t xmr_diff = money_received - money_spend;
+
+            cout << " - xmr resieved: " << cryptonote::print_money(xmr_diff) << endl;
+            total_xmr_balance += xmr_diff;
         }
         else
         {
-            cout << "- xmr spent: " << cryptonote::print_money(money_spend - money_received);
-            cout << "(includes tx fee: " << cryptonote::print_money(cryptonote::get_tx_fee(tx))
-                 << ")" << endl;
+            uint64_t xmr_diff = money_spend - money_received;
+            uint64_t tx_fee = cryptonote::get_tx_fee(tx);
 
-            total_xmr_balance -= money_spend - money_received;
+            cout << "- xmr spent: " << cryptonote::print_money(xmr_diff)
+                 << " (includes tx fee: " << cryptonote::print_money(tx_fee) << ")"
+                 << endl;
+
+            total_xmr_balance -= xmr_diff;
         }
     }
 
+
+    // print total xmr balance of after all processing all xmr recieved and xmr spend.
     cout << "\nTotal balance: " << cryptonote::print_money(total_xmr_balance) << endl;
-
-
 
     cout << "\nEnd of program." << endl;
 
