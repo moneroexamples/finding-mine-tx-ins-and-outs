@@ -103,7 +103,10 @@ int main(int ac, const char* av[]) {
 
     // hardcoded private view and spend keys for the new wallet created.
     // this example will work only with these keys and the corresponding
-    // tx hashes.
+    // tx hashes. To have general program which will work with any private keys,
+    // scanning the blockchain is required, because without this, it is not
+    // possible to know which transaction outputs are associated with the
+    // keys. This probably be another example.
     string viewkey_str  = "9c2edec7636da3fbb343931d6c3d6e11bcd8042ff7e11de98a8d364f31976c04";
     string spendkey_str = "950b90079b0f530c11801ef29e99618d3768d79d3d24972ff4b6fd9687b7b20c";
 
