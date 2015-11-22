@@ -241,7 +241,7 @@ int main(int ac, const char* av[]) {
     {
         cout << "\n\n"
              << "********************************************************************\n"
-             << "Transaction: "<< ++tx_index <<"\n"
+             << "Transaction: " << ++tx_index << "\n"
              << "********************************************************************"
              << endl;
 
@@ -276,7 +276,7 @@ int main(int ac, const char* av[]) {
         cout << "\n"
              << "tx hash          : " << cryptonote::get_transaction_hash(tx) << "\n"
              << "public tx key    : "  << pub_tx_key << "\n"
-             << "dervied key      : "  << derivation << "\n"
+             << "derived key      : "  << derivation << "\n"
              << endl;
 
 
@@ -405,7 +405,7 @@ int main(int ac, const char* av[]) {
         {
             uint64_t xmr_diff = money_received - money_spend;
 
-            cout << " - xmr resieved: " << cryptonote::print_money(xmr_diff) << endl;
+            cout << " - xmr received: " << cryptonote::print_money(xmr_diff) << endl;
             total_xmr_balance += xmr_diff;
         }
         else
