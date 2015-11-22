@@ -128,7 +128,10 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
 
     <span class="pl-c">// hardcoded private view and spend keys for the new wallet created.</span>
     <span class="pl-c">// this example will work only with these keys and the corresponding</span>
-    <span class="pl-c">// tx hashes.</span>
+    <span class="pl-c">// tx hashes. To have general program which will work with any private keys,</span>
+    <span class="pl-c">// scanning the blockchain is required, because without this, it is not</span>
+    <span class="pl-c">// possible to know which transaction outputs are associated with the</span>
+    <span class="pl-c">// keys. This probably be another example.</span>
     string viewkey_str  = <span class="pl-s"><span class="pl-pds">"</span>9c2edec7636da3fbb343931d6c3d6e11bcd8042ff7e11de98a8d364f31976c04<span class="pl-pds">"</span></span>;
     string spendkey_str = <span class="pl-s"><span class="pl-pds">"</span>950b90079b0f530c11801ef29e99618d3768d79d3d24972ff4b6fd9687b7b20c<span class="pl-pds">"</span></span>;
 
