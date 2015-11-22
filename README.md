@@ -2,7 +2,8 @@
 
 Due to how [Monero](https://getmonero.org/) monero works, it is rather
 impossible to know which input and outputs in a given transaction belong
-to a specific user based on their record in the blockchain. The reason is, that knowing someones xmr address
+to a specific user based on their record in the blockchain. The reason is, that knowing
+someone's xmr address
 does not enable us to get this information from the blockchain. In order
 to obtain this information, private view and spend
 keys are required. But how do you use them to get this information?
@@ -105,8 +106,8 @@ int main(int ac, const char* av[]) {
     // this example will work only with these keys and the corresponding
     // tx hashes. To have general program which will work with any private keys,
     // scanning the blockchain is required, because without this, it is not
-    // possible to know which transaction outputs are associated with the
-    // keys. This probably be another example.
+    // possible to know which transaction outputs and inputs are associated
+    // with the keys. This probably will be another example.
     string viewkey_str  = "9c2edec7636da3fbb343931d6c3d6e11bcd8042ff7e11de98a8d364f31976c04";
     string spendkey_str = "950b90079b0f530c11801ef29e99618d3768d79d3d24972ff4b6fd9687b7b20c";
 
@@ -185,7 +186,6 @@ int main(int ac, const char* av[]) {
              << private_spend_key << endl;
         return 1;
     }
-
 
 
     cout << "\n"
@@ -374,6 +374,7 @@ int main(int ac, const char* av[]) {
 
                 // if so, then add the xmr amount to the money_transfered
                 money_received += tx.vout[i].amount;
+
                 cout << ", mine key: " << cryptonote::print_money(tx.vout[i].amount) << endl;
             }
             else
@@ -408,6 +409,7 @@ int main(int ac, const char* av[]) {
             // matches any of your key images that were
             // generated for every output that we received
             std::vector<crypto::key_image>::iterator it;
+
             it = find(key_images.begin(), key_images.end(), tx_in_to_key.k_image);
 
             cout << ""
@@ -417,6 +419,7 @@ int main(int ac, const char* av[]) {
             {
                 // if so, then add the xmr amount to the money_spend
                 money_spend += tx_in_to_key.amount;
+
                 cout << ", mine key image: "
                      << cryptonote::print_money(tx_in_to_key.amount)
                      << endl;
@@ -440,8 +443,9 @@ int main(int ac, const char* av[]) {
         {
             uint64_t xmr_diff = money_received - money_spend;
 
-            cout << " - xmr received: " << cryptonote::print_money(xmr_diff) << endl;
             total_xmr_balance += xmr_diff;
+
+            cout << " - xmr received: " << cryptonote::print_money(xmr_diff) << endl;
         }
         else
         {
@@ -450,17 +454,21 @@ int main(int ac, const char* av[]) {
             // get tx fee
             uint64_t tx_fee = cryptonote::get_tx_fee(tx);
 
+            total_xmr_balance -= xmr_diff;
+
             cout << "- xmr spent: " << cryptonote::print_money(xmr_diff)
                  << " (includes tx fee: " << cryptonote::print_money(tx_fee) << ")"
                  << endl;
-
-            total_xmr_balance -= xmr_diff;
         }
+
+        cout << "\nAfter this tx, total balance is: "
+             << cryptonote::print_money(total_xmr_balance)
+             << endl;
     }
 
 
     // print total xmr balance of after all processing all xmr received and xmr spend.
-    cout << "\nTotal balance: " << cryptonote::print_money(total_xmr_balance) << endl;
+    cout << "\nFinal total balance: " << cryptonote::print_money(total_xmr_balance) << endl;
 
     cout << "\nEnd of program." << endl;
 
@@ -480,7 +488,7 @@ Public view key  : <6cc88f08944d5f3b4f811ae011436fbcadc668b566883ce34d06395f4502
 Monero address   : <43A7NUmo5HbhJoSKbw9bRWW4u2b8dNfhKheTR5zxoRwQ7bULK5TgUQeAvPS5EVNLAJYZRQYqXCmhdf26zG2Has35SpiF1FP>
 
 Mnemonic seed    : hookup hijack imagine touchy audio bowling gnaw scenic rapid oncoming shrugged gang fazed unhappy lumber amply altitude duties ozone silk hashing feel tolerant uptight tolerant
-[1;32m2015-Nov-22 08:38:02.269930 Blockchain initialized. last block: 836282, d0.h0.m4.s28 time ago, current difficulty: 826940486
+[1;32m2015-Nov-22 08:59:57.010836 Blockchain initialized. last block: 836295, d0.h0.m2.s4 time ago, current difficulty: 813369436
 [0m
 
 ********************************************************************
@@ -508,6 +516,8 @@ Total xmr spend: 0.000000000000
 Summary for tx: <ead7b392f57311fbac14477c4a50bee935f1dbc06bf166d219f4c011ae1dc398>
  - xmr received: 2.240000000000
 
+After this tx, total balance is: 2.240000000000
+
 
 ********************************************************************
 Transaction: 2
@@ -534,6 +544,8 @@ Total xmr spend: 0.000000000000
 Summary for tx: <50a3ded2df473a7e8a7fde58c8a865d1ae246ce8ceddb5f474164888fe2ad822>
  - xmr received: 1.321000000000
 
+After this tx, total balance is: 3.561000000000
+
 
 ********************************************************************
 Transaction: 3
@@ -556,6 +568,8 @@ Total xmr spend: 0.000000000000
 
 Summary for tx: <fed715d3361f3c66437e1e19f193c93abb86c74b5d77ea464e95f27c37097214>
  - xmr received: 0.600000000000
+
+After this tx, total balance is: 4.161000000000
 
 
 ********************************************************************
@@ -580,6 +594,8 @@ Total xmr spend: 2.000000000000
 Summary for tx: <948a7ce9971d05e99a43f35e11e4c6a346e7d2b71758bed5cb4f9fc175f7bb5f>
 - xmr spent: 0.800000000000 (includes tx fee: 0.020000000000)
 
+After this tx, total balance is: 3.361000000000
+
 
 ********************************************************************
 Transaction: 5
@@ -602,6 +618,8 @@ Total xmr spend: 0.300000000000
 
 Summary for tx: <edc9671f6f988f7d9a5265c1f7829d5b8ecc2f6ddafa995b23a1dd04f7834713>
 - xmr spent: 0.160000000000 (includes tx fee: 0.010000000000)
+
+After this tx, total balance is: 3.201000000000
 
 
 ********************************************************************
@@ -627,6 +645,8 @@ Total xmr spend: 0.000000000000
 
 Summary for tx: <7132cd214d9b7b502b2990b61181ba1cde203b9e4c648d60a9772e56c1ff2980>
  - xmr received: 1.600000000000
+
+After this tx, total balance is: 4.801000000000
 
 
 ********************************************************************
@@ -655,6 +675,8 @@ Total xmr spend: 1.940000000000
 Summary for tx: <60465baab286ae6656378ab5b036b32c238347e7d83988be6d613c17dc586cc4>
 - xmr spent: 1.650000000000 (includes tx fee: 0.050000000000)
 
+After this tx, total balance is: 3.151000000000
+
 
 ********************************************************************
 Transaction: 8
@@ -678,6 +700,8 @@ Total xmr spend: 0.000000000000
 
 Summary for tx: <5dcc5eb9cd89f8d364f7ea4ad789067f8c16425ce94d6a6e38e1c0c3f1fedae6>
  - xmr received: 1.100000000000
+
+After this tx, total balance is: 4.251000000000
 
 
 ********************************************************************
@@ -703,6 +727,8 @@ Total xmr spend: 1.260000000000
 
 Summary for tx: <6f6d97eaa2de50d27b60ce8ac40b0b8dd53a56f7d9f17d81a71b29194d53dd58>
 - xmr spent: 1.240000000000 (includes tx fee: 0.040000000000)
+
+After this tx, total balance is: 3.011000000000
 
 
 ********************************************************************
@@ -734,6 +760,8 @@ Total xmr spend: 3.011000000000
 Summary for tx: <97ffac124e8215986cfa9f46fb4824d5f366e48cb5e30495a3debb62bac01c06>
 - xmr spent: 3.011000000000 (includes tx fee: 0.030000000000)
 
+After this tx, total balance is: 0.000000000000
+
 
 ********************************************************************
 Transaction: 11
@@ -755,6 +783,8 @@ Total xmr spend: 0.000000000000
 
 Summary for tx: <6b524290bd6a955e72ad47d88736a871f7c2661f225e1127f4310c00e585f974>
  - xmr received: 0.480000000000
+
+After this tx, total balance is: 0.480000000000
 
 
 ********************************************************************
@@ -783,6 +813,8 @@ Total xmr spend: 0.000000000000
 Summary for tx: <a16f4658e736801ce1cc875e146127628810609b6297e362b86cd3c691d1a4d0>
  - xmr received: 4.800000000000
 
+After this tx, total balance is: 5.280000000000
+
 
 ********************************************************************
 Transaction: 13
@@ -804,6 +836,8 @@ Total xmr spend: 0.400000000000
 
 Summary for tx: <1826bf767546ed1ebaebc22c34ca4f73e6f8b38efcb2ded79c9470d2625eadf9>
 - xmr spent: 0.300000000000 (includes tx fee: 0.020000000000)
+
+After this tx, total balance is: 4.980000000000
 
 
 ********************************************************************
@@ -828,6 +862,8 @@ Total xmr spend: 0.000000000000
 
 Summary for tx: <f81dd26e16c66a20e5609e6b19a849be7aaad3705ac7614db229a9d4f982bdaa>
  - xmr received: 2.490000000000
+
+After this tx, total balance is: 7.470000000000
 
 
 ********************************************************************
@@ -855,6 +891,8 @@ Total xmr spend: 4.080000000000
 Summary for tx: <87f64738a14d25a8e4e1a6c2a78510895b4dc6ea1ab4f909ff1ccde8c6907f10>
 - xmr spent: 1.350000000000 (includes tx fee: 0.010000000000)
 
+After this tx, total balance is: 6.120000000000
+
 
 ********************************************************************
 Transaction: 16
@@ -881,6 +919,8 @@ Total xmr spend: 2.000000000000
 
 Summary for tx: <38b6935a9bc0385f5ddaf63582bb318a81125756a433fe2babab698f91438d20>
 - xmr spent: 1.160000000000 (includes tx fee: 0.036550000000)
+
+After this tx, total balance is: 4.960000000000
 
 
 ********************************************************************
@@ -911,6 +951,8 @@ Total xmr spend: 4.560000000000
 Summary for tx: <09d9e8eccf82b3d6811ed7005102caf1b605f325cf60ed372abeb4a67d956fff>
 - xmr spent: 4.190000000000 (includes tx fee: 0.190000000000)
 
+After this tx, total balance is: 0.770000000000
+
 
 ********************************************************************
 Transaction: 18
@@ -934,7 +976,11 @@ Total xmr spend: 0.770000000000
 Summary for tx: <83d682b3f1b57db488b1d2040a48c0db957e8b79f5e6142e1b018f41d4d9dc84>
 - xmr spent: 0.770000000000 (includes tx fee: 0.010000000000)
 
-Total balance: 0.000000000000
+After this tx, total balance is: 0.000000000000
+
+Final total balance: 0.000000000000
+
+End of program.
 ```
 
 The values agree with my  [manual record](https://github.com/moneroexamples/finding-mine-tx-ins-and-outs/blob/master/tx_manual_record.txt) and [simplewallet restoration log](https://github.com/moneroexamples/finding-mine-tx-ins-and-outs/blob/master/tx_restore_log.txt).
