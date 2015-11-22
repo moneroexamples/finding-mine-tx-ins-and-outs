@@ -14,6 +14,8 @@
 
 #include "blockchain_db/lmdb/db_lmdb.h"
 
+#include "mnemonics/electrum-words.h"
+
 
 #include "common/base58.h"
 

@@ -1,28 +1,34 @@
 # Find which tx inputs and ouputs are mine
 
-Do to how [Monero](https://getmonero.org/) monero works, it is rather
-impossible to know input and outputs in a given transaction belong
-to a specific user. The reason is, that knowing someones xmr address
-does not enable us to get this information for the blockchain. In order
-to obtain this information from the blockchain, private view and spend
+Due to how [Monero](https://getmonero.org/) monero works, it is rather
+impossible to know which input and outputs in a given transaction belong
+to a specific user based on their record in the blockchain. The reason is, that knowing someones xmr address
+does not enable us to get this information from the blockchain. In order
+to obtain this information, private view and spend
 keys are required. But how do you use them to get this information?
 
 One way is to restore your wallet using your mnemonic seed. During
 the restoration process, a log file will be generated containing
 found incoming and outcoming transactions. Another way is to write your own
-program for this. And how it can be achieved, it is demonstrated in this
-example. Specifically, the example shows how to do this in C++ using monero libraries. To make
-this example execute fast, I created a test wallet and made a number of
+program for this.
+
+How this can be done, it is demonstrated in this
+example. Specifically, the example shows how check which inputs and outputs
+in transactions belong to a given users (knowing private spend and view keys) in C++.
+
+To make this example execute fast and simple, I created a test wallet and made a number of
 incoming and outcoming transactions to and from the wallet. Each
 transaction was recorded manually for the verification of the results.
 
+In order to avoid scanning the blockchain for transactions, I hard coded
+transaction hashes in the code. Another example will show how to do it in
+a more general way.
+
 The full record of the transactions is here:
 
- - [manual record]()
- - [restoration log]()
+ - [manual record](https://github.com/moneroexamples/finding-mine-tx-ins-and-outs/blob/master/tx_manual_record.txt)
+ - [simplewallet restoration log](https://github.com/moneroexamples/finding-mine-tx-ins-and-outs/blob/master/tx_restore_log.txt)
 
-
-[shown in python](http://moneroexamples.github.io/python-json-rpc/).
 
 ## Pre-requisites
 
@@ -39,14 +45,9 @@ Monero source code compilation and setup are same as [here](http://moneroexample
 
 
 # C++ code
-The two most interesting C++ files in this example are `MicroCore.cpp` and `main.cpp`.
-Therefore, I will present only these to files here. Full source code is
-at [github](https://github.com/moneroexamples/access-blockchain-in-cpp). The surfce code can
-also slighly vary with the code here, as it can be updated more frequently than
-the code presented here. So for the latest version
-of this example, please check the github repository directly.
+The main part of the example is main.cpp.
 
-## MicroCore.cpp
+## main.cpp
 
 
 ```c++

@@ -192,4 +192,17 @@ namespace xmreg
         return true;
     }
 
+
+    string
+    get_default_lmdb_folder()
+    {
+        // default path to monero folder
+        // on linux this is /home/<username>/.bitmonero
+        string default_monero_dir = tools::get_default_data_dir();
+
+        // the default folder of the lmdb blockchain database
+        // is therefore as follows
+        return default_monero_dir + string("/lmdb");
+    }
+
 }

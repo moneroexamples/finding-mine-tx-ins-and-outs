@@ -57,6 +57,10 @@ namespace xmreg
     bf::path
     remove_trailing_path_separator(const bf::path& in_path);
 
+
+    string
+    get_default_lmdb_folder();
+
     bool
     generate_key_image(const crypto::key_derivation& derivation,
                        const std::size_t output_index,
