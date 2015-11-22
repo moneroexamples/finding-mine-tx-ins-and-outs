@@ -73,8 +73,8 @@ int main(int ac, const char* av[]) {
     // this example will work only with these keys and the corresponding
     // tx hashes. To have general program which will work with any private keys,
     // scanning the blockchain is required, because without this, it is not
-    // possible to know which transaction outputs are associated with the
-    // keys. This probably be another example.
+    // possible to know which transaction outputs and inputs are associated
+    // with the keys. This probably will be another example.
     string viewkey_str  = "9c2edec7636da3fbb343931d6c3d6e11bcd8042ff7e11de98a8d364f31976c04";
     string spendkey_str = "950b90079b0f530c11801ef29e99618d3768d79d3d24972ff4b6fd9687b7b20c";
 
@@ -410,9 +410,9 @@ int main(int ac, const char* av[]) {
         {
             uint64_t xmr_diff = money_received - money_spend;
 
-            cout << " - xmr received: " << cryptonote::print_money(xmr_diff) << endl;
-
             total_xmr_balance += xmr_diff;
+
+            cout << " - xmr received: " << cryptonote::print_money(xmr_diff) << endl;
         }
         else
         {
@@ -421,17 +421,21 @@ int main(int ac, const char* av[]) {
             // get tx fee
             uint64_t tx_fee = cryptonote::get_tx_fee(tx);
 
+            total_xmr_balance -= xmr_diff;
+
             cout << "- xmr spent: " << cryptonote::print_money(xmr_diff)
                  << " (includes tx fee: " << cryptonote::print_money(tx_fee) << ")"
                  << endl;
-
-            total_xmr_balance -= xmr_diff;
         }
+
+        cout << "\nAfter this tx, total balance is: "
+             << cryptonote::print_money(total_xmr_balance)
+             << endl;
     }
 
 
     // print total xmr balance of after all processing all xmr received and xmr spend.
-    cout << "\nTotal balance: " << cryptonote::print_money(total_xmr_balance) << endl;
+    cout << "\nFinal total balance: " << cryptonote::print_money(total_xmr_balance) << endl;
 
     cout << "\nEnd of program." << endl;
 
