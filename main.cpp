@@ -44,8 +44,8 @@ int main(int ac, const char* av[]) {
     string language {"English"};
 
     // for this example, I made new wallet. These are the transaction hashes
-    // that were send to the wallet, or send from the wallet. I hardcoded them here,
-    // because its was much easier to work on the example. For more general
+    // that were sent to the wallet, or sent from the wallet. I hardcoded them here
+    // because it was much easier to work on the example. For more general
     // use, one would have to scan the blockchain to determine which
     // transactions our ours. This will be probably another example.
     vector<string> tx_hashes_str {
@@ -79,7 +79,7 @@ int main(int ac, const char* av[]) {
     string spendkey_str = "950b90079b0f530c11801ef29e99618d3768d79d3d24972ff4b6fd9687b7b20c";
 
 
-    // get the program command line options, or default values
+    // get the program command line options or default values
     path blockchain_path = bc_path_opt ? path(*bc_path_opt) : path(default_lmdb_dir);
 
 
@@ -101,7 +101,7 @@ int main(int ac, const char* av[]) {
     epee::log_space::log_singletone::add_logger(LOGGER_CONSOLE, NULL, NULL);
 
 
-    // parse string representing given private viewkey
+    // parse string representing given private view key
     crypto::secret_key private_view_key;
 
     if (!xmreg::parse_str_secret_key(viewkey_str, private_view_key))
@@ -110,7 +110,7 @@ int main(int ac, const char* av[]) {
         return 1;
     }
 
-    // parse string representing given private viewkey
+    // parse string representing given private spend key
     crypto::secret_key private_spend_key;
 
     if (!xmreg::parse_str_secret_key(spendkey_str, private_spend_key))
@@ -120,8 +120,7 @@ int main(int ac, const char* av[]) {
     }
 
 
-    // we have private_spend_key, so now
-    // we need to get the corresponding
+    // we have private_spend_key, so now we need to get the corresponding
     // public_spend_key
     crypto::public_key public_spend_key;
 
@@ -130,8 +129,7 @@ int main(int ac, const char* av[]) {
     crypto::secret_key_to_public_key(private_spend_key, public_spend_key);
 
 
-    // we have private_view_key, so now
-    // we need to get the corresponding
+    // we have private_view_key, so now we need to get the corresponding
     crypto::public_key public_view_key;
 
 
@@ -139,7 +137,7 @@ int main(int ac, const char* av[]) {
     crypto::secret_key_to_public_key(private_view_key, public_view_key);
 
 
-    // parse string representing given monero address
+    // generate monero address from the public keys
     cryptonote::account_public_address address {public_spend_key, public_view_key};
 
 
@@ -155,23 +153,6 @@ int main(int ac, const char* av[]) {
     }
 
 
-    cout << "\n"
-         << "Private spend key: " << private_spend_key << "\n"
-         << "Public spend key : " << public_spend_key  << endl;
-
-    cout << "\n"
-        << "Private view key : "  << private_view_key << "\n"
-        << "Public view key  : "  << public_view_key  << endl;
-
-
-    cout << "\n"
-         << "Monero address   : "  << address << endl;
-
-    cout << "\n"
-         << "Mnemonic seed    : "  << mnemonic_str << endl;
-
-
-
     // create instance of our MicroCore
     xmreg::MicroCore mcore;
 
@@ -181,6 +162,24 @@ int main(int ac, const char* av[]) {
         cerr << "Error accessing blockchain." << endl;
         return 1;
     }
+
+
+    cout << "\n"
+         << "Private spend key: " << private_spend_key << "\n"
+         << "Public spend key : " << public_spend_key  << endl;
+
+    cout << "\n"
+         << "Private view key : "  << private_view_key << "\n"
+         << "Public view key  : "  << public_view_key  << endl;
+
+
+    cout << "\n"
+         << "Monero address   : "  << address << endl;
+
+    cout << "\n"
+         << "Mnemonic seed    : "  << mnemonic_str << endl;
+
+
 
     // get the high level cryptonote::Blockchain object to interact
     // with the blockchain lmdb database
@@ -205,13 +204,14 @@ int main(int ac, const char* av[]) {
 
     // store key images generated using our outputs
     // and our private spend key.
+    //
     // this is the most tricky part of the example.
     // the reason is that by simply looking at individual transactions
-    // it is not possible to know which inputs are ours even if
-    // we have private view and spend keys. We can do this with outputs
-    // but inputs. So how do you know which outputs in a given transactions
-    // are ours? The answer is that we need to keep track of all our
-    // previous outputs. In other words, the key_image listed in inputs
+    // it is not possible to know which inputs are ours, even if
+    // we have private view and spend keys. we can do this with outputs
+    // but inputs. so how do you know which outputs in a given transactions
+    // are ours? the answer is that we need to keep track of all our
+    // previous outputs. In other words, the key_images listed in inputs
     // of a given transaction will correspond (if they belongs to us)
     // to some key images derived from our past outputs
     vector<crypto::key_image> key_images;
@@ -236,7 +236,7 @@ int main(int ac, const char* av[]) {
     // if there is a match, it means that this input is ours, i.e.,
     // we sent xmr somewhere.
     //
-    // When we spend xmr, inputs used will add up to no less than
+    // when we spend xmr, inputs used will add up to no less than
     // what we spend. Thus, if they they are more than what we spend
     // we will get back a change in the outputs of the current transaction.
     for (const cryptonote::transaction& tx: txs)
@@ -278,8 +278,7 @@ int main(int ac, const char* av[]) {
         cout << "\n"
              << "tx hash          : " << cryptonote::get_transaction_hash(tx) << "\n"
              << "public tx key    : "  << pub_tx_key << "\n"
-             << "derived key      : "  << derivation << "\n"
-             << endl;
+             << "derived key      : "  << derivation << "\n" << endl;
 
 
         //
@@ -327,8 +326,7 @@ int main(int ac, const char* av[]) {
                                                key_image))
                 {
                     cerr << "Cant generate key image for tx: "
-                         << cryptonote::get_transaction_hash(tx)
-                         << endl;
+                         << cryptonote::get_transaction_hash(tx) << endl;
 
                     return 1;
                 }
@@ -388,8 +386,7 @@ int main(int ac, const char* av[]) {
                 money_spend += tx_in_to_key.amount;
 
                 cout << ", mine key image: "
-                     << cryptonote::print_money(tx_in_to_key.amount)
-                     << endl;
+                     << cryptonote::print_money(tx_in_to_key.amount) << endl;
             }
             else
             {
