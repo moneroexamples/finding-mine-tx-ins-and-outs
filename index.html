@@ -24,7 +24,8 @@
 
 <p>Due to how <a href="https://getmonero.org/">Monero</a> monero works, it is rather
 impossible to know which input and outputs in a given transaction belong
-to a specific user based on their record in the blockchain. The reason is, that knowing someones xmr address
+to a specific user based on their record in the blockchain. The reason is, that knowing
+someone's xmr address
 does not enable us to get this information from the blockchain. In order
 to obtain this information, private view and spend
 keys are required. But how do you use them to get this information?</p>
@@ -130,8 +131,8 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
     <span class="pl-c">// this example will work only with these keys and the corresponding</span>
     <span class="pl-c">// tx hashes. To have general program which will work with any private keys,</span>
     <span class="pl-c">// scanning the blockchain is required, because without this, it is not</span>
-    <span class="pl-c">// possible to know which transaction outputs are associated with the</span>
-    <span class="pl-c">// keys. This probably be another example.</span>
+    <span class="pl-c">// possible to know which transaction outputs and inputs are associated</span>
+    <span class="pl-c">// with the keys. This probably will be another example.</span>
     string viewkey_str  = <span class="pl-s"><span class="pl-pds">"</span>9c2edec7636da3fbb343931d6c3d6e11bcd8042ff7e11de98a8d364f31976c04<span class="pl-pds">"</span></span>;
     string spendkey_str = <span class="pl-s"><span class="pl-pds">"</span>950b90079b0f530c11801ef29e99618d3768d79d3d24972ff4b6fd9687b7b20c<span class="pl-pds">"</span></span>;
 
@@ -210,7 +211,6 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
              &lt;&lt; private_spend_key &lt;&lt; endl;
         <span class="pl-k">return</span> <span class="pl-c1">1</span>;
     }
-
 
 
     cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
@@ -399,6 +399,7 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
 
                 <span class="pl-c">// if so, then add the xmr amount to the money_transfered</span>
                 money_received += tx.<span class="pl-smi">vout</span>[i].<span class="pl-smi">amount</span>;
+
                 cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>, mine key: <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-c1">cryptonote::print_money</span>(tx.<span class="pl-smi">vout</span>[i].<span class="pl-smi">amount</span>) &lt;&lt; endl;
             }
             <span class="pl-k">else</span>
@@ -433,6 +434,7 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
             <span class="pl-c">// matches any of your key images that were</span>
             <span class="pl-c">// generated for every output that we received</span>
             std::vector&lt;crypto::key_image&gt;::iterator it;
+
             it = <span class="pl-c1">find</span>(key_images.<span class="pl-c1">begin</span>(), key_images.<span class="pl-c1">end</span>(), tx_in_to_key.<span class="pl-smi">k_image</span>);
 
             cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>
@@ -442,6 +444,7 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
             {
                 <span class="pl-c">// if so, then add the xmr amount to the money_spend</span>
                 money_spend += tx_in_to_key.<span class="pl-smi">amount</span>;
+
                 cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>, mine key image: <span class="pl-pds">"</span></span>
                      &lt;&lt; <span class="pl-c1">cryptonote::print_money</span>(tx_in_to_key.<span class="pl-smi">amount</span>)
                      &lt;&lt; endl;
@@ -465,8 +468,9 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
         {
             <span class="pl-c1">uint64_t</span> xmr_diff = money_received - money_spend;
 
-            cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> - xmr received: <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-c1">cryptonote::print_money</span>(xmr_diff) &lt;&lt; endl;
             total_xmr_balance += xmr_diff;
+
+            cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> - xmr received: <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-c1">cryptonote::print_money</span>(xmr_diff) &lt;&lt; endl;
         }
         <span class="pl-k">else</span>
         {
@@ -475,17 +479,21 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
             <span class="pl-c">// get tx fee</span>
             <span class="pl-c1">uint64_t</span> tx_fee = <span class="pl-c1">cryptonote::get_tx_fee</span>(tx);
 
+            total_xmr_balance -= xmr_diff;
+
             cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>- xmr spent: <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-c1">cryptonote::print_money</span>(xmr_diff)
                  &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span> (includes tx fee: <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-c1">cryptonote::print_money</span>(tx_fee) &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>)<span class="pl-pds">"</span></span>
                  &lt;&lt; endl;
-
-            total_xmr_balance -= xmr_diff;
         }
+
+        cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span>After this tx, total balance is: <span class="pl-pds">"</span></span>
+             &lt;&lt; <span class="pl-c1">cryptonote::print_money</span>(total_xmr_balance)
+             &lt;&lt; endl;
     }
 
 
     <span class="pl-c">// print total xmr balance of after all processing all xmr received and xmr spend.</span>
-    cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span>Total balance: <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-c1">cryptonote::print_money</span>(total_xmr_balance) &lt;&lt; endl;
+    cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span>Final total balance: <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-c1">cryptonote::print_money</span>(total_xmr_balance) &lt;&lt; endl;
 
     cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span>End of program.<span class="pl-pds">"</span></span> &lt;&lt; endl;
 
@@ -504,7 +512,7 @@ Public view key  <span class="pl-c1">:</span> <span class="pl-k">&lt;</span>6cc8
 Monero address   <span class="pl-c1">:</span> <span class="pl-k">&lt;</span>43A7NUmo5HbhJoSKbw9bRWW4u2b8dNfhKheTR5zxoRwQ7bULK5TgUQeAvPS5EVNLAJYZRQYqXCmhdf26zG2Has35SpiF1FP<span class="pl-k">&gt;</span>
 
 Mnemonic seed    <span class="pl-c1">:</span> hookup hijack imagine touchy audio bowling gnaw scenic rapid oncoming shrugged gang fazed unhappy lumber amply altitude duties ozone silk hashing feel tolerant uptight tolerant
-[1<span class="pl-k">;</span>32m2015-Nov-22 08:38:02.269930 Blockchain initialized. last block: 836282, d0.h0.m4.s28 <span class="pl-k">time</span> ago, current difficulty: 826940486
+[1<span class="pl-k">;</span>32m2015-Nov-22 08:59:57.010836 Blockchain initialized. last block: 836295, d0.h0.m2.s4 <span class="pl-k">time</span> ago, current difficulty: 813369436
 [0m
 
 <span class="pl-k">********************************************************************</span>
@@ -532,6 +540,8 @@ Total xmr spend: 0.000000000000
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>ead7b392f57311fbac14477c4a50bee935f1dbc06bf166d219f4c011ae1dc<span class="pl-k">398&gt;</span>
  - xmr received: 2.240000000000
 
+After this tx, total balance is: 2.240000000000
+
 
 <span class="pl-k">********************************************************************</span>
 Transaction: 2
@@ -558,6 +568,8 @@ Total xmr spend: 0.000000000000
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>50a3ded2df473a7e8a7fde58c8a865d1ae246ce8ceddb5f474164888fe2ad<span class="pl-k">822&gt;</span>
  - xmr received: 1.321000000000
 
+After this tx, total balance is: 3.561000000000
+
 
 <span class="pl-k">********************************************************************</span>
 Transaction: 3
@@ -580,6 +592,8 @@ Total xmr spend: 0.000000000000
 
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>fed715d3361f3c66437e1e19f193c93abb86c74b5d77ea464e95f27c<span class="pl-k">37097214&gt;</span>
  - xmr received: 0.600000000000
+
+After this tx, total balance is: 4.161000000000
 
 
 <span class="pl-k">********************************************************************</span>
@@ -604,6 +618,8 @@ Total xmr spend: 2.000000000000
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>948a7ce9971d05e99a43f35e11e4c6a346e7d2b71758bed5cb4f9fc175f7bb5f<span class="pl-k">&gt;</span>
 - xmr spent: 0.800000000000 (includes tx fee: 0.020000000000)
 
+After this tx, total balance is: 3.361000000000
+
 
 <span class="pl-k">********************************************************************</span>
 Transaction: 5
@@ -626,6 +642,8 @@ Total xmr spend: 0.300000000000
 
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>edc9671f6f988f7d9a5265c1f7829d5b8ecc2f6ddafa995b23a1dd04f<span class="pl-k">7834713&gt;</span>
 - xmr spent: 0.160000000000 (includes tx fee: 0.010000000000)
+
+After this tx, total balance is: 3.201000000000
 
 
 <span class="pl-k">********************************************************************</span>
@@ -651,6 +669,8 @@ Total xmr spend: 0.000000000000
 
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>7132cd214d9b7b502b2990b61181ba1cde203b9e4c648d60a9772e56c1ff<span class="pl-k">2980&gt;</span>
  - xmr received: 1.600000000000
+
+After this tx, total balance is: 4.801000000000
 
 
 <span class="pl-k">********************************************************************</span>
@@ -679,6 +699,8 @@ Total xmr spend: 1.940000000000
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>60465baab286ae6656378ab5b036b32c238347e7d83988be6d613c17dc586cc<span class="pl-k">4&gt;</span>
 - xmr spent: 1.650000000000 (includes tx fee: 0.050000000000)
 
+After this tx, total balance is: 3.151000000000
+
 
 <span class="pl-k">********************************************************************</span>
 Transaction: 8
@@ -702,6 +724,8 @@ Total xmr spend: 0.000000000000
 
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>5dcc5eb9cd89f8d364f7ea4ad789067f8c16425ce94d6a6e38e1c0c3f1fedae<span class="pl-k">6&gt;</span>
  - xmr received: 1.100000000000
+
+After this tx, total balance is: 4.251000000000
 
 
 <span class="pl-k">********************************************************************</span>
@@ -727,6 +751,8 @@ Total xmr spend: 1.260000000000
 
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>6f6d97eaa2de50d27b60ce8ac40b0b8dd53a56f7d9f17d81a71b29194d53dd<span class="pl-k">58&gt;</span>
 - xmr spent: 1.240000000000 (includes tx fee: 0.040000000000)
+
+After this tx, total balance is: 3.011000000000
 
 
 <span class="pl-k">********************************************************************</span>
@@ -758,6 +784,8 @@ Total xmr spend: 3.011000000000
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>97ffac124e8215986cfa9f46fb4824d5f366e48cb5e30495a3debb62bac01c<span class="pl-k">06&gt;</span>
 - xmr spent: 3.011000000000 (includes tx fee: 0.030000000000)
 
+After this tx, total balance is: 0.000000000000
+
 
 <span class="pl-k">********************************************************************</span>
 Transaction: 11
@@ -779,6 +807,8 @@ Total xmr spend: 0.000000000000
 
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>6b524290bd6a955e72ad47d88736a871f7c2661f225e1127f4310c00e585f<span class="pl-k">974&gt;</span>
  - xmr received: 0.480000000000
+
+After this tx, total balance is: 0.480000000000
 
 
 <span class="pl-k">********************************************************************</span>
@@ -807,6 +837,8 @@ Total xmr spend: 0.000000000000
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>a16f4658e736801ce1cc875e146127628810609b6297e362b86cd3c691d1a4d<span class="pl-k">0&gt;</span>
  - xmr received: 4.800000000000
 
+After this tx, total balance is: 5.280000000000
+
 
 <span class="pl-k">********************************************************************</span>
 Transaction: 13
@@ -828,6 +860,8 @@ Total xmr spend: 0.400000000000
 
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>1826bf767546ed1ebaebc22c34ca4f73e6f8b38efcb2ded79c9470d2625eadf<span class="pl-k">9&gt;</span>
 - xmr spent: 0.300000000000 (includes tx fee: 0.020000000000)
+
+After this tx, total balance is: 4.980000000000
 
 
 <span class="pl-k">********************************************************************</span>
@@ -852,6 +886,8 @@ Total xmr spend: 0.000000000000
 
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>f81dd26e16c66a20e5609e6b19a849be7aaad3705ac7614db229a9d4f982bdaa<span class="pl-k">&gt;</span>
  - xmr received: 2.490000000000
+
+After this tx, total balance is: 7.470000000000
 
 
 <span class="pl-k">********************************************************************</span>
@@ -879,6 +915,8 @@ Total xmr spend: 4.080000000000
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>87f64738a14d25a8e4e1a6c2a78510895b4dc6ea1ab4f909ff1ccde8c6907f<span class="pl-k">10&gt;</span>
 - xmr spent: 1.350000000000 (includes tx fee: 0.010000000000)
 
+After this tx, total balance is: 6.120000000000
+
 
 <span class="pl-k">********************************************************************</span>
 Transaction: 16
@@ -905,6 +943,8 @@ Total xmr spend: 2.000000000000
 
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>38b6935a9bc0385f5ddaf63582bb318a81125756a433fe2babab698f91438d<span class="pl-k">20&gt;</span>
 - xmr spent: 1.160000000000 (includes tx fee: 0.036550000000)
+
+After this tx, total balance is: 4.960000000000
 
 
 <span class="pl-k">********************************************************************</span>
@@ -935,6 +975,8 @@ Total xmr spend: 4.560000000000
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>09d9e8eccf82b3d6811ed7005102caf1b605f325cf60ed372abeb4a67d956fff<span class="pl-k">&gt;</span>
 - xmr spent: 4.190000000000 (includes tx fee: 0.190000000000)
 
+After this tx, total balance is: 0.770000000000
+
 
 <span class="pl-k">********************************************************************</span>
 Transaction: 18
@@ -958,7 +1000,11 @@ Total xmr spend: 0.770000000000
 Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span class="pl-k">&lt;</span>83d682b3f1b57db488b1d2040a48c0db957e8b79f5e6142e1b018f41d4d9dc<span class="pl-k">84&gt;</span>
 - xmr spent: 0.770000000000 (includes tx fee: 0.010000000000)
 
-Total balance: 0.000000000000</pre></div>
+After this tx, total balance is: 0.000000000000
+
+Final total balance: 0.000000000000
+
+End of program.</pre></div>
 
 <p>The values agree with my  <a href="https://github.com/moneroexamples/finding-mine-tx-ins-and-outs/blob/master/tx_manual_record.txt">manual record</a> and <a href="https://github.com/moneroexamples/finding-mine-tx-ins-and-outs/blob/master/tx_restore_log.txt">simplewallet restoration log</a>.</p>
 
