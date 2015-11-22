@@ -23,7 +23,7 @@
 <a id="find-which-tx-inputs-and-ouputs-are-ours" class="anchor" href="#find-which-tx-inputs-and-ouputs-are-ours" aria-hidden="true"><span class="octicon octicon-link"></span></a>Find which tx inputs and ouputs are ours</h1>
 
 <p>Due to how <a href="https://getmonero.org/">Monero</a> monero works, it is rather
-impossible to know which input and outputs in a given transaction belong
+impossible to know which inputs and outputs in a given transaction belong
 to a specific user based on their record in the blockchain. The reason is, that knowing
 someone's xmr address
 does not enable us to get this information from the blockchain. In order
@@ -31,21 +31,23 @@ to obtain this information, private view and spend
 keys are required. But how do you use them to get this information?</p>
 
 <p>One way is to restore your wallet using your mnemonic seed. During
-the restoration process, a log file will be generated containing
-found incoming and outcoming transactions. Another way is to write your own
-program for this.</p>
+the restoration process, a log file will be generated. The log will
+ contain
+found incoming and outcoming transactions in the blockchain.</p>
 
-<p>How this can be done, it is demonstrated in this
+<p>Another way is to write your own
+program for this. How this can be done, it is demonstrated in this
 example. Specifically, the example shows how check which inputs and outputs
 in transactions belong to a given users (knowing private spend and view keys) in C++.</p>
 
-<p>To make this example execute fast and simple, I created a test wallet and made a number of
+<p>To make this example fast and simple, I created a test wallet and made a number of
 incoming and outcoming transactions to and from the wallet. Each
 transaction was recorded manually for the verification of the results.</p>
 
 <p>In order to avoid scanning the blockchain for transactions, I hard coded
 transaction hashes in the code. Another example will show how to do it in
-a more general way.</p>
+a more general way. How we can loop through the blockchain
+is shown <a href="http://moneroexamples.github.io/block-access-time/">here</a>.</p>
 
 <p>The full record of the transactions is here:</p>
 
@@ -102,8 +104,8 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
     string language {<span class="pl-s"><span class="pl-pds">"</span>English<span class="pl-pds">"</span></span>};
 
     <span class="pl-c">// for this example, I made new wallet. These are the transaction hashes</span>
-    <span class="pl-c">// that were send to the wallet, or send from the wallet. I hardcoded them here,</span>
-    <span class="pl-c">// because its was much easier to work on the example. For more general</span>
+    <span class="pl-c">// that were sent to the wallet, or sent from the wallet. I hardcoded them here</span>
+    <span class="pl-c">// because it was much easier to work on the example. For more general</span>
     <span class="pl-c">// use, one would have to scan the blockchain to determine which</span>
     <span class="pl-c">// transactions our ours. This will be probably another example.</span>
     vector&lt;string&gt; tx_hashes_str {
@@ -137,7 +139,7 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
     string spendkey_str = <span class="pl-s"><span class="pl-pds">"</span>950b90079b0f530c11801ef29e99618d3768d79d3d24972ff4b6fd9687b7b20c<span class="pl-pds">"</span></span>;
 
 
-    <span class="pl-c">// get the program command line options, or default values</span>
+    <span class="pl-c">// get the program command line options or default values</span>
     path blockchain_path = bc_path_opt ? <span class="pl-c1">path</span>(*bc_path_opt) : <span class="pl-c1">path</span>(default_lmdb_dir);
 
 
@@ -159,7 +161,7 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
     <span class="pl-c1">epee::log_space::log_singletone::add_logger</span>(LOGGER_CONSOLE, <span class="pl-c1">NULL</span>, <span class="pl-c1">NULL</span>);
 
 
-    <span class="pl-c">// parse string representing given private viewkey</span>
+    <span class="pl-c">// parse string representing given private view key</span>
     crypto::secret_key private_view_key;
 
     <span class="pl-k">if</span> (!<span class="pl-c1">xmreg::parse_str_secret_key</span>(viewkey_str, private_view_key))
@@ -168,7 +170,7 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
         <span class="pl-k">return</span> <span class="pl-c1">1</span>;
     }
 
-    <span class="pl-c">// parse string representing given private viewkey</span>
+    <span class="pl-c">// parse string representing given private spend key</span>
     crypto::secret_key private_spend_key;
 
     <span class="pl-k">if</span> (!<span class="pl-c1">xmreg::parse_str_secret_key</span>(spendkey_str, private_spend_key))
@@ -178,8 +180,7 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
     }
 
 
-    <span class="pl-c">// we have private_spend_key, so now</span>
-    <span class="pl-c">// we need to get the corresponding</span>
+    <span class="pl-c">// we have private_spend_key, so now we need to get the corresponding</span>
     <span class="pl-c">// public_spend_key</span>
     crypto::public_key public_spend_key;
 
@@ -188,8 +189,7 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
     <span class="pl-c1">crypto::secret_key_to_public_key</span>(private_spend_key, public_spend_key);
 
 
-    <span class="pl-c">// we have private_view_key, so now</span>
-    <span class="pl-c">// we need to get the corresponding</span>
+    <span class="pl-c">// we have private_view_key, so now we need to get the corresponding</span>
     crypto::public_key public_view_key;
 
 
@@ -197,7 +197,7 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
     <span class="pl-c1">crypto::secret_key_to_public_key</span>(private_view_key, public_view_key);
 
 
-    <span class="pl-c">// parse string representing given monero address</span>
+    <span class="pl-c">// generate monero address from the public keys</span>
     cryptonote::account_public_address address {public_spend_key, public_view_key};
 
 
@@ -213,23 +213,6 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
     }
 
 
-    cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
-         &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Private spend key: <span class="pl-pds">"</span></span> &lt;&lt; private_spend_key &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
-         &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Public spend key : <span class="pl-pds">"</span></span> &lt;&lt; public_spend_key  &lt;&lt; endl;
-
-    cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
-        &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Private view key : <span class="pl-pds">"</span></span>  &lt;&lt; private_view_key &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
-        &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Public view key  : <span class="pl-pds">"</span></span>  &lt;&lt; public_view_key  &lt;&lt; endl;
-
-
-    cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
-         &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Monero address   : <span class="pl-pds">"</span></span>  &lt;&lt; address &lt;&lt; endl;
-
-    cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
-         &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Mnemonic seed    : <span class="pl-pds">"</span></span>  &lt;&lt; mnemonic_str &lt;&lt; endl;
-
-
-
     <span class="pl-c">// create instance of our MicroCore</span>
     xmreg::MicroCore mcore;
 
@@ -239,6 +222,24 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
         cerr &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Error accessing blockchain.<span class="pl-pds">"</span></span> &lt;&lt; endl;
         <span class="pl-k">return</span> <span class="pl-c1">1</span>;
     }
+
+
+    cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
+         &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Private spend key: <span class="pl-pds">"</span></span> &lt;&lt; private_spend_key &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
+         &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Public spend key : <span class="pl-pds">"</span></span> &lt;&lt; public_spend_key  &lt;&lt; endl;
+
+    cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
+         &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Private view key : <span class="pl-pds">"</span></span>  &lt;&lt; private_view_key &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
+         &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Public view key  : <span class="pl-pds">"</span></span>  &lt;&lt; public_view_key  &lt;&lt; endl;
+
+
+    cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
+         &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Monero address   : <span class="pl-pds">"</span></span>  &lt;&lt; address &lt;&lt; endl;
+
+    cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
+         &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Mnemonic seed    : <span class="pl-pds">"</span></span>  &lt;&lt; mnemonic_str &lt;&lt; endl;
+
+
 
     <span class="pl-c">// get the high level cryptonote::Blockchain object to interact</span>
     <span class="pl-c">// with the blockchain lmdb database</span>
@@ -263,13 +264,14 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
 
     <span class="pl-c">// store key images generated using our outputs</span>
     <span class="pl-c">// and our private spend key.</span>
+    <span class="pl-c">//</span>
     <span class="pl-c">// this is the most tricky part of the example.</span>
     <span class="pl-c">// the reason is that by simply looking at individual transactions</span>
-    <span class="pl-c">// it is not possible to know which inputs are ours even if</span>
-    <span class="pl-c">// we have private view and spend keys. We can do this with outputs</span>
-    <span class="pl-c">// but inputs. So how do you know which outputs in a given transactions</span>
-    <span class="pl-c">// are ours? The answer is that we need to keep track of all our</span>
-    <span class="pl-c">// previous outputs. In other words, the key_image listed in inputs</span>
+    <span class="pl-c">// it is not possible to know which inputs are ours, even if</span>
+    <span class="pl-c">// we have private view and spend keys. we can do this with outputs</span>
+    <span class="pl-c">// but inputs. so how do you know which outputs in a given transactions</span>
+    <span class="pl-c">// are ours? the answer is that we need to keep track of all our</span>
+    <span class="pl-c">// previous outputs. In other words, the key_images listed in inputs</span>
     <span class="pl-c">// of a given transaction will correspond (if they belongs to us)</span>
     <span class="pl-c">// to some key images derived from our past outputs</span>
     vector&lt;crypto::key_image&gt; key_images;
@@ -294,7 +296,7 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
     <span class="pl-c">// if there is a match, it means that this input is ours, i.e.,</span>
     <span class="pl-c">// we sent xmr somewhere.</span>
     <span class="pl-c">//</span>
-    <span class="pl-c">// When we spend xmr, inputs used will add up to no less than</span>
+    <span class="pl-c">// when we spend xmr, inputs used will add up to no less than</span>
     <span class="pl-c">// what we spend. Thus, if they they are more than what we spend</span>
     <span class="pl-c">// we will get back a change in the outputs of the current transaction.</span>
     <span class="pl-k">for</span> (<span class="pl-k">const</span> cryptonote::transaction&amp; tx: txs)
@@ -336,8 +338,7 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
         cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
              &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>tx hash          : <span class="pl-pds">"</span></span> &lt;&lt; <span class="pl-c1">cryptonote::get_transaction_hash</span>(tx) &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
              &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>public tx key    : <span class="pl-pds">"</span></span>  &lt;&lt; pub_tx_key &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
-             &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>derived key      : <span class="pl-pds">"</span></span>  &lt;&lt; derivation &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span>
-             &lt;&lt; endl;
+             &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>derived key      : <span class="pl-pds">"</span></span>  &lt;&lt; derivation &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span><span class="pl-cce">\n</span><span class="pl-pds">"</span></span> &lt;&lt; endl;
 
 
         <span class="pl-c">//</span>
@@ -385,8 +386,7 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
                                                key_image))
                 {
                     cerr &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>Cant generate key image for tx: <span class="pl-pds">"</span></span>
-                         &lt;&lt; <span class="pl-c1">cryptonote::get_transaction_hash</span>(tx)
-                         &lt;&lt; endl;
+                         &lt;&lt; <span class="pl-c1">cryptonote::get_transaction_hash</span>(tx) &lt;&lt; endl;
 
                     <span class="pl-k">return</span> <span class="pl-c1">1</span>;
                 }
@@ -446,8 +446,7 @@ Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.</p>
                 money_spend += tx_in_to_key.<span class="pl-smi">amount</span>;
 
                 cout &lt;&lt; <span class="pl-s"><span class="pl-pds">"</span>, mine key image: <span class="pl-pds">"</span></span>
-                     &lt;&lt; <span class="pl-c1">cryptonote::print_money</span>(tx_in_to_key.<span class="pl-smi">amount</span>)
-                     &lt;&lt; endl;
+                     &lt;&lt; <span class="pl-c1">cryptonote::print_money</span>(tx_in_to_key.<span class="pl-smi">amount</span>) &lt;&lt; endl;
             }
             <span class="pl-k">else</span>
             {
@@ -512,8 +511,7 @@ Public view key  <span class="pl-c1">:</span> <span class="pl-k">&lt;</span>6cc8
 Monero address   <span class="pl-c1">:</span> <span class="pl-k">&lt;</span>43A7NUmo5HbhJoSKbw9bRWW4u2b8dNfhKheTR5zxoRwQ7bULK5TgUQeAvPS5EVNLAJYZRQYqXCmhdf26zG2Has35SpiF1FP<span class="pl-k">&gt;</span>
 
 Mnemonic seed    <span class="pl-c1">:</span> hookup hijack imagine touchy audio bowling gnaw scenic rapid oncoming shrugged gang fazed unhappy lumber amply altitude duties ozone silk hashing feel tolerant uptight tolerant
-[1<span class="pl-k">;</span>32m2015-Nov-22 08:59:57.010836 Blockchain initialized. last block: 836295, d0.h0.m2.s4 <span class="pl-k">time</span> ago, current difficulty: 813369436
-[0m
+
 
 <span class="pl-k">********************************************************************</span>
 Transaction: 1
@@ -1002,9 +1000,7 @@ Summary <span class="pl-k">for</span> <span class="pl-smi">tx</span>: <span clas
 
 After this tx, total balance is: 0.000000000000
 
-Final total balance: 0.000000000000
-
-End of program.</pre></div>
+Final total balance: 0.000000000000</pre></div>
 
 <p>The values agree with my  <a href="https://github.com/moneroexamples/finding-mine-tx-ins-and-outs/blob/master/tx_manual_record.txt">manual record</a> and <a href="https://github.com/moneroexamples/finding-mine-tx-ins-and-outs/blob/master/tx_restore_log.txt">simplewallet restoration log</a>.</p>
 
