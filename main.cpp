@@ -43,17 +43,11 @@ int main(int ac, const char* av[]) {
     // language for generation of mnemonic seed
     string language {"English"};
 
-    // hardcoded private view and spend keys for this example.
-    // this example will work only with these cases and the corresponding
-    // tx hashes below.
-    string viewkey_str  = "9c2edec7636da3fbb343931d6c3d6e11bcd8042ff7e11de98a8d364f31976c04";
-    string spendkey_str = "950b90079b0f530c11801ef29e99618d3768d79d3d24972ff4b6fd9687b7b20c";
-
     // for this example, I made new wallet. These are the transaction hashes
-    // that send to the wallet, or send from the wallet. I hardcoded them here,
+    // that were send to the wallet, or send from the wallet. I hardcoded them here,
     // because its was much easier to work on the example. For more general
     // use, one would have to scan the blockchain to determine which
-    // transactions our ours.
+    // transactions our ours. This will be probably another example.
     vector<string> tx_hashes_str {
             "ead7b392f57311fbac14477c4a50bee935f1dbc06bf166d219f4c011ae1dc398",
             "50a3ded2df473a7e8a7fde58c8a865d1ae246ce8ceddb5f474164888fe2ad822",
@@ -75,9 +69,14 @@ int main(int ac, const char* av[]) {
             "83d682b3f1b57db488b1d2040a48c0db957e8b79f5e6142e1b018f41d4d9dc84"
     };
 
+    // hardcoded private view and spend keys for the new wallet created.
+    // this example will work only with these keys and the corresponding
+    // tx hashes.
+    string viewkey_str  = "9c2edec7636da3fbb343931d6c3d6e11bcd8042ff7e11de98a8d364f31976c04";
+    string spendkey_str = "950b90079b0f530c11801ef29e99618d3768d79d3d24972ff4b6fd9687b7b20c";
 
-    // get the program command line options, or
-    // some default values for quick check
+
+    // get the program command line options, or default values
     path blockchain_path = bc_path_opt ? path(*bc_path_opt) : path(default_lmdb_dir);
 
 
@@ -139,7 +138,6 @@ int main(int ac, const char* av[]) {
 
     // parse string representing given monero address
     cryptonote::account_public_address address {public_spend_key, public_view_key};
-
 
 
     // 25 word mnemonic that is provided by the simplewallet
@@ -204,17 +202,16 @@ int main(int ac, const char* av[]) {
     }
 
     // store key images generated using our outputs
-    // and our private spend key
+    // and our private spend key.
     // this is the most tricky part of the example.
     // the reason is that by simply looking at individual transactions
     // it is not possible to know which inputs are ours even if
     // we have private view and spend keys. We can do this with outputs
     // but inputs. So how do you know which outputs in a given transactions
     // are ours? The answer is that we need to keep track of all our
-    // previous outputs. In other words, the key_image listed in input
-    // of a given transaction will correspond (if it belongs to us)
-    // to some key images derived from our ouputs in our
-    // previous transactions.
+    // previous outputs. In other words, the key_image listed in inputs
+    // of a given transaction will correspond (if they belongs to us)
+    // to some key images derived from our past outputs
     vector<crypto::key_image> key_images;
 
     // total xmr balance
@@ -229,16 +226,19 @@ int main(int ac, const char* av[]) {
     // on our private view key. If so, then get the xmr amount
     // sent to us, and also generate key image for this output.
     // key images are generated using our public spend key. each generated
-    // key image we store in a vector of the key_images.
+    // key image, is stored in a key_images vector.
     //
     // after we are done with outputs, we go to check inputs. inputs
     // are our spendings, but which input is ours? for this, we need
     // to check if input's key_image, matches any of ours key_images.
     // if there is a match, it means that this input is ours, i.e.,
     // we sent xmr somewhere.
+    //
+    // When we spend xmr, inputs used will add up to no less than
+    // what we spend. Thus, if they they are more than what we spend
+    // we will get back a change in the outputs of the current transaction.
     for (const cryptonote::transaction& tx: txs)
     {
-
         cout << "\n\n"
              << "********************************************************************\n"
              << "Transaction: "<< ++tx_index <<"\n"
@@ -293,9 +293,10 @@ int main(int ac, const char* av[]) {
 
 
         // loop through outputs in the given tx
-        // to check which outputs our ours. for each our output
-        // we get xmr amount sent to us, and we generate key image
-        // for a given ouput and store it in global key_images vector.
+        // to check which outputs our ours. for each our output,
+        // we get xmr amount sent to us, and we generate its key image.
+        // the key images generated stored in
+        // the global key_images vector.
         for (size_t i = 0; i < output_no; ++i)
         {
             // get the tx output public key
@@ -364,7 +365,6 @@ int main(int ac, const char* av[]) {
 
         for (size_t i = 0; i < input_no; ++i)
         {
-
             // get tx input key
             const cryptonote::txin_to_key& tx_in_to_key
                     = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
@@ -403,7 +403,6 @@ int main(int ac, const char* av[]) {
 
         if (money_received > money_spend)
         {
-
             uint64_t xmr_diff = money_received - money_spend;
 
             cout << " - xmr resieved: " << cryptonote::print_money(xmr_diff) << endl;
