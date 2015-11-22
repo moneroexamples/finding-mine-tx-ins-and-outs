@@ -155,7 +155,6 @@ int main(int ac, const char* av[]) {
     }
 
 
-
     cout << "\n"
          << "Private spend key: " << private_spend_key << "\n"
          << "Public spend key : " << public_spend_key  << endl;
@@ -342,6 +341,7 @@ int main(int ac, const char* av[]) {
 
                 // if so, then add the xmr amount to the money_transfered
                 money_received += tx.vout[i].amount;
+
                 cout << ", mine key: " << cryptonote::print_money(tx.vout[i].amount) << endl;
             }
             else
@@ -376,6 +376,7 @@ int main(int ac, const char* av[]) {
             // matches any of your key images that were
             // generated for every output that we received
             std::vector<crypto::key_image>::iterator it;
+
             it = find(key_images.begin(), key_images.end(), tx_in_to_key.k_image);
 
             cout << ""
@@ -385,6 +386,7 @@ int main(int ac, const char* av[]) {
             {
                 // if so, then add the xmr amount to the money_spend
                 money_spend += tx_in_to_key.amount;
+
                 cout << ", mine key image: "
                      << cryptonote::print_money(tx_in_to_key.amount)
                      << endl;
@@ -409,6 +411,7 @@ int main(int ac, const char* av[]) {
             uint64_t xmr_diff = money_received - money_spend;
 
             cout << " - xmr received: " << cryptonote::print_money(xmr_diff) << endl;
+
             total_xmr_balance += xmr_diff;
         }
         else
