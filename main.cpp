@@ -370,6 +370,40 @@ int main(int ac, const char* av[]) {
             const cryptonote::txin_to_key& tx_in_to_key
                     = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
 
+
+
+            std::vector<uint64_t> absolute_offsets
+                    = cryptonote::relative_output_offsets_to_absolute(tx_in_to_key.key_offsets);
+
+
+            std::vector<cryptonote::output_data_t> outputs;
+            core_storage.get_db().get_output_key(tx_in_to_key.amount, absolute_offsets, outputs);
+
+
+
+            size_t count = 0;
+
+            for (const uint64_t& i: absolute_offsets)
+            {
+                cryptonote::output_data_t output_index;
+
+                // get tx hash and output index for output
+                if (count < outputs.size())
+                    output_index = outputs.at(count);
+                else
+                    output_index = core_storage.get_db().get_output_key(tx_in_to_key.amount, i);
+
+
+                cout << "Key_offset " << i
+                     << ": " << output_index.height << " "
+                     << output_index.pubkey << endl;
+
+                ++count;
+
+            }
+
+
+
             // check if the public key image of this input
             // matches any of your key images that were
             // generated for every output that we received
