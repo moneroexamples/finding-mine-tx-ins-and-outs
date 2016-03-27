@@ -359,7 +359,7 @@ int main(int ac, const char* av[]) {
         //
 
         // get the total number of inputs in a transaction.
-        // some of these inputs might be our be our spendings
+        // some of these inputs might be our spendings
         size_t input_no = tx.vin.size();
 
         // sum amount of xmr sent by us
