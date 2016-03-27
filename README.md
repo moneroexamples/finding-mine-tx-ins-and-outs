@@ -1,6 +1,6 @@
 # Find which tx inputs and ouputs are ours
 
-Due to how [Monero](https://getmonero.org/) monero works, it is rather
+Due to how [Monero](https://getmonero.org/) works, it is rather
 impossible to know which inputs and outputs in a given transaction belong
 to a specific user based on their record in the blockchain. The reason is, that knowing
 someone's xmr address
@@ -24,8 +24,7 @@ transaction was recorded manually for the verification of the results.
 
 In order to avoid scanning the blockchain for transactions, I hard coded
 transaction hashes in the code. Another example will show how to do it in
-a more general way. How we can loop through the blockchain
-is shown [here](http://moneroexamples.github.io/block-access-time/).
+a more general way. 
 
 The full record of the transactions is here:
 
@@ -36,15 +35,10 @@ The full record of the transactions is here:
 ## Pre-requisites
 
 Everything here was done and tested on
-Ubuntu 14.04 x86_64 and Ubuntu 15.10 x86_64.
+Ubuntu 16.04 x86_64.
 
 Instruction for Monero compilation:
- - [Ubuntu 14.04 x86_64](http://moneroexamples.github.io/compile-monero-ubuntu/)
- - [Ubuntu 15.10 x86_64](http://moneroexamples.github.io/compile-monero-ubuntu-1510/)
-
-
-Monero source code compilation and setup are same as [here](http://moneroexamples.github.io/access-blockchain-in-cpp/).
-
+ - [Ubuntu 16.04 x86_64](https://github.com/moneroexamples/compile-monero-09-on-ubuntu-16-04/)
 
 
 # C++ code
@@ -979,7 +973,7 @@ After this tx, total balance is: 0.000000000000
 Final total balance: 0.000000000000
 ```
 
-The values agree with my  [manual record](https://github.com/moneroexamples/finding-mine-tx-ins-and-outs/blob/master/tx_manual_record.txt) and [simplewallet restoration log](https://github.com/moneroexamples/finding-mine-tx-ins-and-outs/blob/master/tx_restore_log.txt).
+The values agree with my [manual record](https://github.com/moneroexamples/finding-mine-tx-ins-and-outs/blob/master/tx_manual_record.txt) and [simplewallet restoration log](https://github.com/moneroexamples/finding-mine-tx-ins-and-outs/blob/master/tx_restore_log.txt).
 
 
 ## Compile this example
